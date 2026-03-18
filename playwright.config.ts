@@ -4,7 +4,7 @@ import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
-console.log(`Running tests on: ${process.env.BASE_URL}`);
+//console.log(`Running tests on: ${process.env.BASE_URL}`);
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -35,51 +35,17 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    // Setup project
-    { name: 'setup', testMatch: /.*\.setup\.ts/ },
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], storageState: './auth/user.json' },
-      dependencies: ['setup']
+      use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'firefox',
-      use: {
-        ...devices['Desktop Firefox'],
-        storageState: './auth/user.json',
-        launchOptions: {
-          firefoxUserPrefs: {
-            // allow pdf on new tab
-            'pdfjs.disabled': false
-          }
-        }
-      },
-      dependencies: ['setup']
+      use: { ...devices['Desktop Firefox'] },
     },
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'], storageState: './auth/user.json' },
-      dependencies: ['setup']
+      use: { ...devices['Desktop Safari'] },
     }
-
-    /* Test against mobile viewports. */
-    // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
-    // },
-
-    /* Test against branded browsers. */
-    // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
-    // },
-    // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
-    // },
   ]
 });

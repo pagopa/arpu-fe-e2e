@@ -2,7 +2,7 @@
 
 ## About The Project
 
-This project contains a suite of end-to-end tests for the ARC project. The aim is to have a wide cover of the flows and test the UX in several browser environment.
+This project contains a suite of end-to-end tests for the ARPU project. The aim is to have a wide cover of the flows and test the UX in several browser environment.
 
 ### Built With
 
