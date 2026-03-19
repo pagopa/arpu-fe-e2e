@@ -10,14 +10,14 @@ import {
 const minimumAmountEuro = 1;
 const nextButtonId = 'spontanei-controls-continue-button';
 const backButtonId = 'spontanei-controls-back-button';
-const fullNameInputId = '[id="fullName"]';
-const fiscalCodeInputId = '[id="fiscalCode"]';
-const emailInputId = '[id="email"]';
-const orgFiscalCodeInputId = '[id="orgFiscalCode"]';
-const fullNameHelperTextId = '[id="fullName-helper-text"]';
-const fiscalCodeHelperTextId = '[id="fiscalCode-helper-text"]';
-const emailHelperTextId = '[id="email-helper-text"]';
-const orgFiscalCodeHelperTextId = '[id="orgFiscalCode-helper-text"]';
+const fullNameInputLocator = '[id="fullName"]';
+const fiscalCodeInputLocator = '[id="fiscalCode"]';
+const emailInputLocator = '[id="email"]';
+const orgFiscalCodeInputLocator = '[id="orgFiscalCode"]';
+const fullNameHelperTextLocator = '[id="fullName-helper-text"]';
+const fiscalCodeHelperTextLocator = '[id="fiscalCode-helper-text"]';
+const emailHelperTextLocator = '[id="email-helper-text"]';
+const orgFiscalCodeHelperTextLocator = '[id="orgFiscalCode-helper-text"]';
 
 test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async ({
   page
@@ -32,27 +32,27 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
   // STEP TWO: Debtor data form
   // testing checks
   await page.getByTestId(nextButtonId).click();
-  await expect(page.locator(fullNameHelperTextId)).toBeVisible();
-  await expect(page.locator(emailHelperTextId)).toBeVisible();
-  await expect(page.locator(fiscalCodeHelperTextId)).toBeVisible();
-  await expect(page.locator(orgFiscalCodeHelperTextId)).toBeVisible();
+  await expect(page.locator(fullNameHelperTextLocator)).toBeVisible();
+  await expect(page.locator(emailHelperTextLocator)).toBeVisible();
+  await expect(page.locator(fiscalCodeHelperTextLocator)).toBeVisible();
+  await expect(page.locator(orgFiscalCodeHelperTextLocator)).toBeVisible();
 
   // Municipality selection
   let municipality = getRandomFrom(avaiableMunicipalities);
   console.log('User selected municipality: ' + municipality.name);
-  await page.locator(orgFiscalCodeInputId).click();
+  await page.locator(orgFiscalCodeInputLocator).click();
   await page.getByRole('option', { name: municipality.name }).click();
 
   // Debtor data filling
-  await page.locator(fullNameInputId).fill(userData.name);
-  await page.locator(fiscalCodeInputId).fill(userData.fiscal_code);
-  await page.locator(emailInputId).fill(userData.email);
+  await page.locator(fullNameInputLocator).fill(userData.name);
+  await page.locator(fiscalCodeInputLocator).fill(userData.fiscal_code);
+  await page.locator(emailInputLocator).fill(userData.email);
 
   // testing checks after filling
-  await expect(page.locator(fullNameHelperTextId)).not.toBeVisible();
-  await expect(page.locator(emailHelperTextId)).not.toBeVisible();
-  await expect(page.locator(fiscalCodeHelperTextId)).not.toBeVisible();
-  await expect(page.locator(orgFiscalCodeHelperTextId)).not.toBeVisible();
+  await expect(page.locator(fullNameHelperTextLocator)).not.toBeVisible();
+  await expect(page.locator(emailHelperTextLocator)).not.toBeVisible();
+  await expect(page.locator(fiscalCodeHelperTextLocator)).not.toBeVisible();
+  await expect(page.locator(orgFiscalCodeHelperTextLocator)).not.toBeVisible();
 
   // Simulating user uncertainty randomically
   if (Math.random() >= 0.5) {
@@ -68,7 +68,7 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     // selecting new municipality
     municipality = getRandomFrom(avaiableMunicipalities);
     console.log('User selected new municipality: ' + municipality.name);
-    await page.locator(orgFiscalCodeInputId).click();
+    await page.locator(orgFiscalCodeInputLocator).click();
     await page.getByRole('option', { name: municipality.name }).click();
   }
 
