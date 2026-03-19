@@ -22,8 +22,16 @@ const orgFiscalCodeHelperTextLocator = '[id="orgFiscalCode-helper-text"]';
 test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async ({
   page
 }) => {
+
+  if (process.env.BASE_URL?.includes('localhost')) {
+    await page.goto('/cittadini/cie/public/spontanei/');
+  } else {
+    // Starting from the landing page
+    // assuming that UAT is the only other environment to be tested
+    await page.goto('https://uat.p4pa.pagopa.it/cie/');
+    await page.locator('div').filter({ hasText: /^Paga oraScopri come funziona$/ }).getByRole('link').click();
+  }
   // STEP ONE: Reason selection
-  await page.goto('/cittadini/cie/public/spontanei/');
   let reason = getRandomFrom(avaiableReasons);
   console.log('User selected reason: ' + reason.name);
   await page.getByText(reason.name).click();
