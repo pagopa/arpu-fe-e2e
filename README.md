@@ -24,15 +24,12 @@ The table below describes all the Environment variables needed by the applicatio
 | Variable name                    | Description                | type                  |
 | -------------------------------- | -------------------------- | --------------------- |
 | BASE_URL                         | the target site            | url                   |
-| USERNAME                         | Username to access with    | string                |
-| PASSWORD                         | Password for the user      | string                |
-| IDENTITY_PROVIDER_BUTTON_TEST_ID | button id of auth provider | string                |
 
 ### Installation
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/pagopa/arc-fe-e2e.git
+   git clone https://github.com/pagopa/arpu-fe-e2e.git
    ```
 2. Install node packages
    ```sh

@@ -1,9 +1,9 @@
 {
-  "name": "arc-fe-e2e",
+  "name": "arpu-fe-e2e",
   "version": "1.0.0",
   "main": "index.js",
-  "repository": "git@github.com:pagopa/arc-fe-e2e.git",
-  "author": "Michele Moio <michelemoiodev@gmail.com>",
+  "repository": "git@github.com:pagopa/arpu-fe-e2e.git",
+  "author": "pagoPA",
   "license": "MIT",
   "devDependencies": {
     "dotenv": "^16.4.5",
@@ -24,8 +24,8 @@
   "scripts": {
     "codegen": "playwright codegen",
     "test": "playwright test",
-		"lint": "eslint",
-		"lint:fix": "eslint --fix"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix"
   },
   "dependencies": {}
 }
