@@ -73,7 +73,9 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await page.getByText(reason.name).click();
     // going to municipality selection (STEP TWO)
     await page.getByTestId(nextButtonId).click();
-    // selecting new municipality
+    // testing the form reset
+    await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toBeEmpty();
+    //selecting new municipality
     municipality = getRandomFrom(avaiableMunicipalities);
     console.log('User selected new municipality: ' + municipality.name);
     await page.locator(orgFiscalCodeInputLocator).click();
@@ -81,6 +83,16 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
   }
 
   // going to summary page (STEP THREE)
+  await page.getByTestId(nextButtonId).click();
+
+  // return to form (STEP TWO) and testing the form doesn't reset (except for user info)
+  await page.getByTestId(backButtonId).click();
+  await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(municipality.name);
+  await expect(page.locator(fullNameInputLocator)).toHaveValue(userData.name);
+  await expect(page.locator(fiscalCodeInputLocator)).toHaveValue(userData.fiscal_code);
+  await expect(page.locator(emailInputLocator)).toHaveValue(userData.email);
+
+  // going to summary page again (STEP THREE)
   await page.getByTestId(nextButtonId).click();
 
   // STEP THREE: Summary page assertions
