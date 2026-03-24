@@ -116,6 +116,20 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
   await expect(page.getByTestId('summary-debtor-code-value')).toContainText(userData.fiscal_code);
   await expect(page.getByTestId('summary-debtor-email-value')).toContainText(userData.email);
 
-  // Continue button
-  //await page.getByTestId('summary-continue-button').click();
+  // STEP FOUR: Payment page
+  // Prepare to listen for the specific API response
+  const debtPositionResponse = page.waitForResponse(response =>
+    response.url().includes('spontaneous/debt-positions') && response.request().method() === 'POST'
+  );
+
+  // Trigger the action that makes the call
+  await page.getByTestId(nextButtonId).click();
+
+  // Await the response and check that it succeeded
+  const response = await debtPositionResponse;
+  expect(response.ok()).toBeTruthy(); // Asserts that status is in the 200-299 range
+
+  // Continue with other assertions
+  await expect(page.getByTestId('pay-button')).toBeVisible();
+  await expect(page.getByTestId('download-notice-button')).toBeVisible();
 });
