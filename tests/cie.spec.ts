@@ -22,7 +22,7 @@ const orgFiscalCodeHelperTextLocator = '[id="orgFiscalCode-helper-text"]';
 test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async ({
   page
 }) => {
-  // STEP THREE: Summary page assertions
+  // Summary page assertions
   const checkSummary = async () => {
     // Organization, reason and amount
     await expect(page.getByTestId('summary-extra-orgFiscalCode.label-value')).toContainText(
@@ -43,6 +43,11 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.getByTestId('summary-debtor-code-value')).toContainText(userData.fiscal_code);
     await expect(page.getByTestId('summary-debtor-email-value')).toContainText(userData.email);
   }
+
+  // Prepare to listen for the specific API response
+  const debtPositionResponse = page.waitForResponse(response =>
+    response.url().includes('spontaneous/debt-positions') && response.request().method() === 'POST'
+  );
 
   await page.goto('/cittadini/cie/public/spontanei/');
   // STEP ONE: Reason selection
@@ -117,11 +122,6 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
   }
 
   // STEP FOUR: Payment page assertions
-  // Prepare to listen for the specific API response
-  const debtPositionResponse = page.waitForResponse(response =>
-    response.url().includes('spontaneous/debt-positions') && response.request().method() === 'POST'
-  );
-
   // Trigger the action that makes the call
   await page.getByTestId(nextButtonId).click();
 
