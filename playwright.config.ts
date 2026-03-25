@@ -11,7 +11,7 @@ console.log(`Running tests on: ${process.env.BASE_URL}`);
  */
 export default defineConfig({
   /* general timeout */
-  timeout: 60000,
+  timeout: 30000,
   testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,

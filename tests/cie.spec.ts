@@ -22,15 +22,29 @@ const orgFiscalCodeHelperTextLocator = '[id="orgFiscalCode-helper-text"]';
 test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async ({
   page
 }) => {
+  // STEP THREE: Summary page assertions
+  const checkSummary = async () => {
+    // Organization, reason and amount
+    await expect(page.getByTestId('summary-extra-orgFiscalCode.label-value')).toContainText(
+      municipality.name
+    );
+    await expect(page.getByTestId('summary-extra-orgFiscalCode.value-value')).toContainText(
+      municipality.fiscal_code
+    );
+    await expect(page.getByTestId('summary-extra-debtType.description-value')).toContainText(
+      reason.name
+    );
+    const amount = await page.getByTestId('summary-payment-amount-value').textContent();
+    const parsedAmount = parseCurrencyToNumber(amount || '');
+    expect(parsedAmount).toBeGreaterThan(minimumAmountEuro);
 
-  if (process.env.BASE_URL?.includes('localhost')) {
-    await page.goto('/cittadini/cie/public/spontanei/');
-  } else {
-    // Starting from the landing page
-    // assuming that UAT is the only other environment to be tested
-    await page.goto('https://uat.p4pa.pagopa.it/cie/');
-    await page.locator('div').filter({ hasText: /^Paga oraScopri come funziona$/ }).getByRole('link').click();
+    // Debtor
+    await expect(page.getByTestId('summary-debtor-name-value')).toContainText(userData.name);
+    await expect(page.getByTestId('summary-debtor-code-value')).toContainText(userData.fiscal_code);
+    await expect(page.getByTestId('summary-debtor-email-value')).toContainText(userData.email);
   }
+
+  await page.goto('/cittadini/cie/public/spontanei/');
   // STEP ONE: Reason selection
   let reason = getRandomFrom(avaiableReasons);
   console.log('User selected reason: ' + reason.name);
@@ -84,39 +98,25 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
 
   // going to summary page (STEP THREE)
   await page.getByTestId(nextButtonId).click();
-
-  // return to form (STEP TWO) and testing the form doesn't reset (except for user info)
-  await page.getByTestId(backButtonId).click();
-  await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(municipality.name);
-  await expect(page.locator(fullNameInputLocator)).toHaveValue(userData.name);
-  await expect(page.locator(fiscalCodeInputLocator)).toHaveValue(userData.fiscal_code);
-  await expect(page.locator(emailInputLocator)).toHaveValue(userData.email);
-
-  // going to summary page again (STEP THREE)
-  await page.getByTestId(nextButtonId).click();
-
   // STEP THREE: Summary page assertions
-  // Organization, reason and amount
-  await expect(page.getByTestId('summary-extra-orgFiscalCode.label-value')).toContainText(
-    municipality.name
-  );
-  await expect(page.getByTestId('summary-extra-orgFiscalCode.value-value')).toContainText(
-    municipality.fiscal_code
-  );
-  await expect(page.getByTestId('summary-extra-debtType.description-value')).toContainText(
-    reason.name
-  );
-  const amount = await page.getByTestId('summary-payment-amount-value').textContent();
-  const parsedAmount = parseCurrencyToNumber(amount || '');
-  console.log('Amount: ' + parsedAmount);
-  expect(parsedAmount).toBeGreaterThan(minimumAmountEuro);
+  await checkSummary();
 
-  // Debtor
-  await expect(page.getByTestId('summary-debtor-name-value')).toContainText(userData.name);
-  await expect(page.getByTestId('summary-debtor-code-value')).toContainText(userData.fiscal_code);
-  await expect(page.getByTestId('summary-debtor-email-value')).toContainText(userData.email);
+  // Simulating user uncertainty randomically
+  if (Math.random() >= 0.5) {
+    // return to form (STEP TWO) and testing the form doesn't reset (except for user info)
+    await page.getByTestId(backButtonId).click();
+    console.log('User returned to form');
+    await expect(page.locator(fullNameInputLocator)).toHaveValue(userData.name);
+    await expect(page.locator(fiscalCodeInputLocator)).toHaveValue(userData.fiscal_code);
+    await expect(page.locator(emailInputLocator)).toHaveValue(userData.email);
+    await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(municipality.name);
+    // going to summary page again (STEP THREE)
+    await page.getByTestId(nextButtonId).click();
+    // STEP THREE: Summary page assertions
+    await checkSummary();
+  }
 
-  // STEP FOUR: Payment page
+  // STEP FOUR: Payment page assertions
   // Prepare to listen for the specific API response
   const debtPositionResponse = page.waitForResponse(response =>
     response.url().includes('spontaneous/debt-positions') && response.request().method() === 'POST'
