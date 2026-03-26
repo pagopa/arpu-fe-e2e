@@ -38,8 +38,6 @@ jobs:
           touch .env
           echo BASE_URL=https://uat.p4pa.pagopa.it >> .env
           cat .env
-        working-directory: e2e
 
       - name: run e2e tests
         run: yarn test
-        working-directory: e2e
