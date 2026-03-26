@@ -4,6 +4,9 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '0 * * * *' # Run every hour just for testing
+  pull_request:
+    branches:
+      - main
 
 env:
   NODE_VERSION: '22.21.0'
