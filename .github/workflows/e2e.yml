@@ -3,7 +3,7 @@ name: e2e test
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' # Run every hour just for testing
+    - cron: '0 9 * * 1-5' # Run every weekday at 9am
   pull_request:
     branches:
       - main
