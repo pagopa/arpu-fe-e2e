@@ -1,0 +1,43 @@
+name: e2e test
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9 * * 1-5' # Run every weekday at 9am
+  pull_request:
+    branches:
+      - main
+
+env:
+  NODE_VERSION: '22.21.0'
+
+jobs:
+  testing-e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@7c12f8017d5436eb855f1ed4399f037a36fbd9e8 # v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Install dependecies
+        run: yarn install --immutable
+
+      - name: Install playwright browsers
+        run: yarn playwright install chromium firefox webkit
+
+      - name: Install playwright deps
+        run: yarn playwright install-deps 
+
+      - name: populate environment vars writing down an .env file
+        run: |
+          touch .env
+          echo BASE_URL=https://uat.p4pa.pagopa.it >> .env
+          cat .env
+
+      - name: run e2e tests
+        run: yarn test
