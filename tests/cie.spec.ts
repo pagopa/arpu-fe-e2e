@@ -42,11 +42,13 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.getByTestId('summary-debtor-name-value')).toContainText(userData.name);
     await expect(page.getByTestId('summary-debtor-code-value')).toContainText(userData.fiscal_code);
     await expect(page.getByTestId('summary-debtor-email-value')).toContainText(userData.email);
-  }
+  };
 
   // Prepare to listen for the specific API response
-  const debtPositionResponse = page.waitForResponse(response =>
-    response.url().includes('spontaneous/debt-positions') && response.request().method() === 'POST'
+  const debtPositionResponse = page.waitForResponse(
+    (response) =>
+      response.url().includes('spontaneous/debt-positions') &&
+      response.request().method() === 'POST'
   );
 
   await page.goto('/cittadini/cie/public/spontanei/');
@@ -114,7 +116,9 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.locator(fullNameInputLocator)).toHaveValue(userData.name);
     await expect(page.locator(fiscalCodeInputLocator)).toHaveValue(userData.fiscal_code);
     await expect(page.locator(emailInputLocator)).toHaveValue(userData.email);
-    await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(municipality.name);
+    await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(
+      municipality.name
+    );
     // going to summary page again (STEP THREE)
     await page.getByTestId(nextButtonId).click();
     // STEP THREE: Summary page assertions
