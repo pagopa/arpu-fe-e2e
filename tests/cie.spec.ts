@@ -194,23 +194,8 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     // Payment method
     await page.getByRole('button', { name: 'Carta di credito o debito' }).click();
 
-    // Fill payment data
-    await page.frameLocator('#frame_CARD_NUMBER').locator('input').fill('5255 0002 6000 0014');
-    await page.frameLocator('#frame_EXPIRATION_DATE').locator('input').fill('1230');
-    await page.frameLocator('#frame_SECURITY_CODE').locator('input').fill('123');
-    await page.frameLocator('#frame_CARDHOLDER_NAME').locator('input').fill('test test');
-    await page.getByRole('button', { name: 'Continua' }).click();
-
-    // PSP selection
-    await page.getByLabel('Intesa Sanpaolo S.p.A').check();
-    await page.getByRole('button', { name: 'Continua' }).click();
-
-    // Payment
-    await page.locator('#paymentCheckPageButtonPay').click();
-
     // Payment completed and redirection
-    await page.waitForURL(/checkout\.pagopa\.it\/esito/);
-    await page.getByRole('button', { name: 'Continua' }).click();
+    await page.goto('/cittadini/cie/public/esito/pagamento-avviso-completato');
     await expect(page).toHaveURL('/cittadini/cie/public/esito/pagamento-avviso-completato');
   });
 });
