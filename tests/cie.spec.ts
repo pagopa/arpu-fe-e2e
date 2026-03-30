@@ -40,137 +40,133 @@ const SELECTORS = {
   }
 };
 
-test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async ({
-  page
-}) => {
+test('CIE', async ({ page }) => {
   let reason: any;
   let municipality: any;
   let paymentAmount: string;
 
   await page.goto(TEST_URL);
 
-  await test.step('Step 1: Select random reason', async () => {
-    reason = getRandomFrom(avaiableReasons);
-
-    await page.getByText(reason.name).click();
-    await page.getByTestId(SELECTORS.buttons.next).click();
-  });
-
-  await test.step('Step 2: fill form and check validation', async () => {
-    // Test validation errors on empty form
-    await page.getByTestId(SELECTORS.buttons.next).click();
-    await expect(page.locator(SELECTORS.helpers.fullName)).toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.email)).toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.fiscalCode)).toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.orgFiscalCode)).toBeVisible();
-
-    // Select random municipality
-    municipality = getRandomFrom(avaiableMunicipalities);
-    await page.locator(SELECTORS.inputs.orgFiscalCode).click();
-    await page.getByRole('option', { name: municipality.name }).click();
-
-    // Fill debtor data
-    await page.locator(SELECTORS.inputs.fullName).fill(userData.name);
-    await page.locator(SELECTORS.inputs.fiscalCode).fill(userData.fiscal_code);
-    await page.locator(SELECTORS.inputs.email).fill(userData.email);
-
-    // Verify errors cleared
-    await expect(page.locator(SELECTORS.helpers.fullName)).not.toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.email)).not.toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.fiscalCode)).not.toBeVisible();
-    await expect(page.locator(SELECTORS.helpers.orgFiscalCode)).not.toBeVisible();
-  });
-
-  // STEP 2B (OPTIONAL)
-  if (Math.random() >= 0.5) {
-    await test.step('Step 2B: User reconsiders and changes reason', async () => {
-      await page.getByTestId(SELECTORS.buttons.back).click();
-      await expect(page.getByLabel(reason.name)).toBeChecked();
-
+  await test.step('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richiedere o rinnovare la Carta di Identità elettronica', async () => {
+    await test.step('Step 1: Select reason', async () => {
       reason = getRandomFrom(avaiableReasons);
+
       await page.getByText(reason.name).click();
       await page.getByTestId(SELECTORS.buttons.next).click();
+    });
 
-      // Verify form reset
-      await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toBeEmpty();
+    await test.step('Step 2: fill form and check validation', async () => {
+      // Test validation errors on empty form
+      await page.getByTestId(SELECTORS.buttons.next).click();
+      await expect(page.locator(SELECTORS.helpers.fullName)).toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.email)).toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.fiscalCode)).toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.orgFiscalCode)).toBeVisible();
 
-      // Select new municipality
+      // Select random municipality
       municipality = getRandomFrom(avaiableMunicipalities);
       await page.locator(SELECTORS.inputs.orgFiscalCode).click();
       await page.getByRole('option', { name: municipality.name }).click();
+
+      // Fill debtor data
+      await page.locator(SELECTORS.inputs.fullName).fill(userData.name);
+      await page.locator(SELECTORS.inputs.fiscalCode).fill(userData.fiscal_code);
+      await page.locator(SELECTORS.inputs.email).fill(userData.email);
+
+      // Verify errors cleared
+      await expect(page.locator(SELECTORS.helpers.fullName)).not.toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.email)).not.toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.fiscalCode)).not.toBeVisible();
+      await expect(page.locator(SELECTORS.helpers.orgFiscalCode)).not.toBeVisible();
     });
-  }
 
-  await test.step('Step 3: Review and verify summary', async () => {
-    await page.getByTestId(SELECTORS.buttons.next).click();
+    // STEP 2B (OPTIONAL)
+    if (Math.random() >= 0.5) {
+      await test.step('Step 2B: User reconsiders and changes reason', async () => {
+        await page.getByTestId(SELECTORS.buttons.back).click();
+        await expect(page.getByLabel(reason.name)).toBeChecked();
 
-    await expect(page.getByTestId(SELECTORS.summary.municipality)).toContainText(municipality.name);
-    await expect(page.getByTestId(SELECTORS.summary.municipalityCode)).toContainText(
-      municipality.fiscal_code
-    );
-    await expect(page.getByTestId(SELECTORS.summary.debtType)).toContainText(reason.name);
+        reason = getRandomFrom(avaiableReasons);
+        await page.getByText(reason.name).click();
+        await page.getByTestId(SELECTORS.buttons.next).click();
 
-    const amount = await page.getByTestId(SELECTORS.summary.amount).textContent();
-    const parsedAmount = parseCurrencyToNumber(amount || '');
-    expect(parsedAmount).toBeGreaterThan(MIN_AMOUNT);
+        // Verify form reset
+        await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toBeEmpty();
 
-    paymentAmount = new Intl.NumberFormat('it-IT', {
-      style: 'currency',
-      currency: 'EUR',
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }).format(parsedAmount);
+        // Select new municipality
+        municipality = getRandomFrom(avaiableMunicipalities);
+        await page.locator(SELECTORS.inputs.orgFiscalCode).click();
+        await page.getByRole('option', { name: municipality.name }).click();
+      });
+    }
 
-    await expect(page.getByTestId(SELECTORS.summary.debtorName)).toContainText(userData.name);
-    await expect(page.getByTestId(SELECTORS.summary.debtorCode)).toContainText(
-      userData.fiscal_code
-    );
-    await expect(page.getByTestId(SELECTORS.summary.debtorEmail)).toContainText(userData.email);
-  });
+    await test.step('Step 3: Review and verify summary', async () => {
+      await page.getByTestId(SELECTORS.buttons.next).click();
 
-  // STEP 3B (OPTIONAL)
-  if (Math.random() >= 0.5) {
-    await test.step('Step 3B: User returns to form to verify data persists', async () => {
-      await page.getByTestId(SELECTORS.buttons.back).click();
-
-      await expect(page.locator(SELECTORS.inputs.fullName)).toHaveValue(userData.name);
-      await expect(page.locator(SELECTORS.inputs.fiscalCode)).toHaveValue(userData.fiscal_code);
-      await expect(page.locator(SELECTORS.inputs.email)).toHaveValue(userData.email);
-      await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(
+      await expect(page.getByTestId(SELECTORS.summary.municipality)).toContainText(
         municipality.name
+      );
+      await expect(page.getByTestId(SELECTORS.summary.municipalityCode)).toContainText(
+        municipality.fiscal_code
+      );
+      await expect(page.getByTestId(SELECTORS.summary.debtType)).toContainText(reason.name);
+
+      const amount = await page.getByTestId(SELECTORS.summary.amount).textContent();
+      const parsedAmount = parseCurrencyToNumber(amount || '');
+      expect(parsedAmount).toBeGreaterThan(MIN_AMOUNT);
+
+      paymentAmount = new Intl.NumberFormat('it-IT', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(parsedAmount);
+
+      await expect(page.getByTestId(SELECTORS.summary.debtorName)).toContainText(userData.name);
+      await expect(page.getByTestId(SELECTORS.summary.debtorCode)).toContainText(
+        userData.fiscal_code
+      );
+      await expect(page.getByTestId(SELECTORS.summary.debtorEmail)).toContainText(userData.email);
+    });
+
+    // STEP 3B (OPTIONAL)
+    if (Math.random() >= 0.5) {
+      await test.step('Step 3B: User returns to form to verify data persists', async () => {
+        await page.getByTestId(SELECTORS.buttons.back).click();
+
+        await expect(page.locator(SELECTORS.inputs.fullName)).toHaveValue(userData.name);
+        await expect(page.locator(SELECTORS.inputs.fiscalCode)).toHaveValue(userData.fiscal_code);
+        await expect(page.locator(SELECTORS.inputs.email)).toHaveValue(userData.email);
+        await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toHaveValue(
+          municipality.name
+        );
+
+        await page.getByTestId(SELECTORS.buttons.next).click();
+
+        // Verify summary again
+        await expect(page.getByTestId(SELECTORS.summary.municipality)).toContainText(
+          municipality.name
+        );
+        await expect(page.getByTestId(SELECTORS.summary.debtType)).toContainText(reason.name);
+      });
+    }
+
+    await test.step('Step 4: Process payment and verify payment page', async () => {
+      const debtPositionResponse = page.waitForResponse(
+        (r) => r.url().includes('spontaneous/debt-positions') && r.request().method() === 'POST'
       );
 
       await page.getByTestId(SELECTORS.buttons.next).click();
 
-      // Verify summary again
-      await expect(page.getByTestId(SELECTORS.summary.municipality)).toContainText(
-        municipality.name
-      );
-      await expect(page.getByTestId(SELECTORS.summary.debtType)).toContainText(reason.name);
+      const response = await debtPositionResponse;
+      expect(response.ok()).toBeTruthy();
+
+      await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
+      await expect(page.getByTestId(SELECTORS.buttons.downloadNotice)).toBeVisible();
     });
-  }
-
-  await test.step('Step 4: Process payment and verify payment page', async () => {
-    const debtPositionResponse = page.waitForResponse(
-      (r) => r.url().includes('spontaneous/debt-positions') && r.request().method() === 'POST'
-    );
-
-    await page.getByTestId(SELECTORS.buttons.next).click();
-
-    const response = await debtPositionResponse;
-    expect(response.ok()).toBeTruthy();
-
-    await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.buttons.downloadNotice)).toBeVisible();
   });
 
-  await test.step('Step 5: Checkout summary + payment flow', async () => {
-    test.info().annotations.push({
-      type: 'CIE-003',
-      description:
-        'Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica'
-    });
-
+  await test.step('CIE-003 - Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica', async () => {
     test.slow();
     await page.getByTestId(SELECTORS.buttons.pay).click();
 
