@@ -164,16 +164,53 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.getByTestId(SELECTORS.buttons.downloadNotice)).toBeVisible();
   });
 
-  await test.step('Step 5: Initiate payment and verify amount on checkout', async () => {
+  await test.step('Step 5: Checkout summary + payment flow', async () => {
+    test.info().annotations.push({
+      type: 'CIE-003',
+      description:
+        'Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica'
+    });
+
+    test.slow();
     await page.getByTestId(SELECTORS.buttons.pay).click();
 
     // Wait for checkout redirect
     await expect(page).toHaveURL(/checkout\.pagopa\.it\//);
 
-    // Wait for checkout to load
-    await expect(page.locator('#email')).toBeVisible({ timeout: 10000 });
-
-    // Verify amount matches on checkout
+    // Amount check
     await expect(page.getByRole('button').filter({ hasText: paymentAmount })).toBeVisible();
+
+    // Cart data checks
+    await page.getByLabel('Apri riepilogo pagamento').click();
+    await expect(page.getByText(reason.name)).toBeVisible();
+    await expect(page.getByText(municipality.fiscal_code)).toBeVisible();
+    await page.getByLabel('Chiudi').click();
+
+    // Email check
+    await expect(page.getByLabel('Email')).toHaveValue(userData.email);
+    await page.getByLabel('Ripeti di nuovo').fill(userData.email);
+    await page.getByRole('button', { name: 'Continua' }).click();
+
+    // Payment method
+    await page.getByRole('button', { name: 'Carta di credito o debito' }).click();
+
+    // Fill payment data
+    await page.frameLocator('#frame_CARD_NUMBER').locator('input').fill('5255 0002 6000 0014');
+    await page.frameLocator('#frame_EXPIRATION_DATE').locator('input').fill('1230');
+    await page.frameLocator('#frame_SECURITY_CODE').locator('input').fill('123');
+    await page.frameLocator('#frame_CARDHOLDER_NAME').locator('input').fill('test test');
+    await page.getByRole('button', { name: 'Continua' }).click();
+
+    // PSP selection
+    await page.getByLabel('Intesa Sanpaolo S.p.A').check();
+    await page.getByRole('button', { name: 'Continua' }).click();
+
+    // Payment
+    await page.locator('#paymentCheckPageButtonPay').click();
+
+    // Payment completed and redirection
+    await page.waitForURL(/checkout\.pagopa\.it\/esito/);
+    await page.getByRole('button', { name: 'Continua' }).click();
+    await expect(page).toHaveURL('/cittadini/cie/public/esito/pagamento-avviso-completato');
   });
 });
