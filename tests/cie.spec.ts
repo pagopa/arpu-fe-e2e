@@ -33,7 +33,7 @@ const SELECTORS = {
     municipality: 'summary-extra-orgFiscalCode.label-value',
     municipalityCode: 'summary-extra-orgFiscalCode.value-value',
     debtType: 'summary-extra-debtType.description-value',
-    amount: 'summary-payment-amount-value',
+    amount: 'summary-extra-cieAmount-value',
     debtorName: 'summary-debtor-name-value',
     debtorCode: 'summary-debtor-code-value',
     debtorEmail: 'summary-debtor-email-value'
@@ -168,6 +168,26 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.buttons.downloadNotice)).toBeVisible();
   });
+});
+
+test("CIE-002 - Come cittadino voglio scaricare il pdf dell'avviso generato per richiedere o rinnovare la Carta di Identità elettronica", async () => {
+  //Wait for DB update notice status
+  await page.waitForTimeout(2000);
+
+  const newPagePromise = page.waitForEvent('popup');
+  await page.getByTestId(SELECTORS.buttons.downloadNotice).click();
+
+  const newPage = await newPagePromise;
+  await newPage.waitForLoadState();
+
+  // Wait for download to start in the new tab
+  const download = await newPage.waitForEvent('download');
+  expect(download.suggestedFilename()).toContain('.pdf');
+
+  await newPage.close();
+
+  // Bring back focus to previous tab to continue CIE-003
+  await page.bringToFront();
 });
 
 test('CIE-003 - Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica', async () => {
