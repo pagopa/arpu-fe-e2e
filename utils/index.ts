@@ -1,16 +1,16 @@
-export const avaiableReasons = [
+export const availableReasons = [
   { name: "Ho perso la carta d'identità", value: 299 },
   { name: "Mi hanno rubato la carta d'identità", value: 300 },
   { name: "La carta d'identità è rovinata o illeggibile", value: 301 },
   { name: 'Devo rinnovare una carta già scaduta', value: 302 },
-  { name: "Non ho mai avuto una carta d'identità prima d'ora", value: 303 },
+  { name: 'È la prima Carta di Identità in assoluto', value: 303 },
   { name: 'Devo rinnovare una carta ancora valida', value: 304 },
   { name: 'Ho cambiato i miei dati anagrafici', value: 305 }
 ];
 
-export const avaiableMunicipalities = [
-  { name: 'Comune di Brescia (BS)', fiscal_code: '00761890177' },
-  { name: 'Comune di Milano (MI)', fiscal_code: '01199250158' }
+export const availableMunicipalities = [
+  { name: 'BRESCIA (BS)', fiscal_code: '00761890177' },
+  { name: 'MILANO (MI)', fiscal_code: '01199250158' }
 ];
 
 export const userData = {

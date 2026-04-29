@@ -1,7 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import {
-  avaiableReasons,
-  avaiableMunicipalities,
+  availableReasons,
+  availableMunicipalities,
   userData,
   getRandomFrom,
   parseCurrencyToNumber
@@ -55,7 +55,7 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
   await page.goto(TEST_URL);
 
   await test.step('Step 1: Select reason', async () => {
-    reason = getRandomFrom(avaiableReasons);
+    reason = getRandomFrom(availableReasons);
 
     await page.getByText(reason.name).click();
     await page.getByTestId(SELECTORS.buttons.next).click();
@@ -70,7 +70,7 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
     await expect(page.locator(SELECTORS.helpers.orgFiscalCode)).toBeVisible();
 
     // Select random municipality
-    municipality = getRandomFrom(avaiableMunicipalities);
+    municipality = getRandomFrom(availableMunicipalities);
     await page.locator(SELECTORS.inputs.orgFiscalCode).click();
     await page.getByRole('option', { name: municipality.name }).click();
 
@@ -92,7 +92,7 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
       await page.getByTestId(SELECTORS.buttons.back).click();
       await expect(page.getByLabel(reason.name)).toBeChecked();
 
-      reason = getRandomFrom(avaiableReasons);
+      reason = getRandomFrom(availableReasons);
       await page.getByText(reason.name).click();
       await page.getByTestId(SELECTORS.buttons.next).click();
 
@@ -100,7 +100,7 @@ test('CIE-001 - Come cittadino voglio generare un avviso di pagamento per richie
       await expect(page.getByRole('combobox', { name: 'Cerca il comune' })).toBeEmpty();
 
       // Select new municipality
-      municipality = getRandomFrom(avaiableMunicipalities);
+      municipality = getRandomFrom(availableMunicipalities);
       await page.locator(SELECTORS.inputs.orgFiscalCode).click();
       await page.getByRole('option', { name: municipality.name }).click();
     });
@@ -217,4 +217,65 @@ test('CIE-003 - Come cittadino voglio pagare online per richiedere o rinnovare l
   // Payment completed and redirection
   await page.goto('/cittadini/cie/public/esito/pagamento-avviso-completato');
   await expect(page).toHaveURL('/cittadini/cie/public/esito/pagamento-avviso-completato');
+});
+
+test('CIE-006 - Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica, ma il pagamento non va a buon fine', async ({
+  page
+}) => {
+  test.slow();
+  const reason = availableReasons[0];
+  const municipality = availableMunicipalities[0];
+
+  await page.goto(TEST_URL);
+
+  await test.step('Step 1: Select reason', async () => {
+    await page.getByText(reason.name).click();
+    await page.getByTestId(SELECTORS.buttons.next).click();
+  });
+
+  await test.step('Step 2: Fill form with data', async () => {
+    await page.locator(SELECTORS.inputs.orgFiscalCode).click();
+    await page.getByRole('option', { name: municipality.name }).click();
+    await page.locator(SELECTORS.inputs.fullName).fill(userData.name);
+    await page.locator(SELECTORS.inputs.fiscalCode).fill(userData.fiscal_code);
+    await page.locator(SELECTORS.inputs.email).fill(userData.email);
+    await page.getByTestId(SELECTORS.buttons.next).click();
+  });
+
+  await test.step('Step 3: Verify summary and create debt position', async () => {
+    // Register the listener BEFORE clicking next (which triggers the POST)
+    const debtPositionResponse = page.waitForResponse(
+      (r) => r.url().includes('spontaneous/debt-positions') && r.request().method() === 'POST'
+    );
+
+    await page.getByTestId(SELECTORS.buttons.next).click();
+
+    const response = await debtPositionResponse;
+    expect(response.ok()).toBeTruthy();
+    await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
+  });
+
+  await test.step('Step 4: Proceed to payment checkout', async () => {
+    await page.getByTestId(SELECTORS.buttons.pay).click();
+    await page.waitForURL(/checkout\.pagopa\.it\//, { timeout: 15000 });
+    await expect(page.getByLabel('Email')).toBeVisible();
+  });
+
+  await test.step('Step 5: Cancel payment to land on pagamento-annullato', async () => {
+    await page.getByRole('button', { name: 'Indietro' }).click();
+    await expect(page).toHaveURL(/esito\/pagamento-annullato/);
+
+    // Wait for the cancel page to fully render and settle before navigating away
+    await expect(page.getByTestId('courtesyPage.title')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+  });
+
+  await test.step('Step 6: Simulate failed payment by rewriting the URL', async () => {
+    const failureUrl = page.url().replace('pagamento-annullato', 'pagamento-non-riuscito');
+    await page.goto(failureUrl);
+
+    await expect(page).toHaveURL(/esito\/pagamento-non-riuscito/);
+    await expect(page.getByTestId('courtesyPage.title')).toBeVisible();
+    await expect(page.getByTestId('courtesyPage.cta')).toBeVisible();
+  });
 });
