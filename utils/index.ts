@@ -1,17 +1,19 @@
-export const avaiableReasons = [
-  { name: "Ho perso la carta d'identità", value: 299 },
-  { name: "Mi hanno rubato la carta d'identità", value: 300 },
-  { name: "La carta d'identità è rovinata o illeggibile", value: 301 },
-  { name: 'Devo rinnovare una carta già scaduta', value: 302 },
-  { name: "Non ho mai avuto una carta d'identità prima d'ora", value: 303 },
-  { name: 'Devo rinnovare una carta ancora valida', value: 304 },
-  { name: 'Ho cambiato i miei dati anagrafici', value: 305 }
-];
+// TYPES AND INTERFACES
+export interface Municipality {
+  label: string;
+  value: string;
+}
 
-export const avaiableMunicipalities = [
-  { name: 'Comune di Brescia (BS)', fiscal_code: '00761890177' },
-  { name: 'Comune di Milano (MI)', fiscal_code: '01199250158' }
-];
+export interface MunicipalityResponse {
+  result: Municipality[];
+}
+
+export interface Reason {
+  description: string;
+  code: number;
+}
+
+export type ReasonResponse = Reason[];
 
 export const userData = {
   name: 'Marco Polo',
@@ -19,6 +21,38 @@ export const userData = {
   email: 'marcopolo@test.it'
 };
 
+// SELECTORS
+export const SELECTORS = {
+  buttons: {
+    next: 'spontanei-controls-continue-button',
+    back: 'spontanei-controls-back-button',
+    pay: 'pay-button',
+    downloadNotice: 'download-notice-button'
+  },
+  inputs: {
+    fullName: '[id="fullName"]',
+    fiscalCode: '[id="fiscalCode"]',
+    email: '[id="email"]',
+    orgFiscalCode: '[id="orgFiscalCode"]'
+  },
+  helpers: {
+    fullName: '[id="fullName-helper-text"]',
+    fiscalCode: '[id="fiscalCode-helper-text"]',
+    email: '[id="email-helper-text"]',
+    orgFiscalCode: '[id="orgFiscalCode-helper-text"]'
+  },
+  summary: {
+    municipality: 'summary-extra-orgFiscalCode.label-value',
+    municipalityCode: 'summary-extra-orgFiscalCode.value-value',
+    debtType: 'summary-extra-debtType.description-value',
+    amount: 'summary-extra-cieAmountCents-value',
+    debtorName: 'summary-debtor-name-value',
+    debtorCode: 'summary-debtor-code-value',
+    debtorEmail: 'summary-debtor-email-value'
+  }
+};
+
+// HELPERS
 /** Return a random element from a list */
 export function getRandomFrom<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)];
