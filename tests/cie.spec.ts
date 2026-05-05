@@ -265,4 +265,40 @@ test('CIE-006 - Come cittadino voglio pagare online per richiedere o rinnovare l
     await page.locator(SELECTORS.inputs.email).fill(userData.email);
     await page.getByTestId(SELECTORS.buttons.next).click();
   });
+  await test.step('Step 3: Verify summary and create debt position', async () => {
+    // Register the listener BEFORE clicking next (which triggers the POST)
+    const debtPositionResponse = page.waitForResponse(
+      (r) => r.url().includes('spontaneous/debt-positions') && r.request().method() === 'POST'
+    );
+
+    await page.getByTestId(SELECTORS.buttons.next).click();
+
+    const response = await debtPositionResponse;
+    expect(response.ok()).toBeTruthy();
+    await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
+  });
+
+  await test.step('Step 4: Proceed to payment checkout', async () => {
+    await page.getByTestId(SELECTORS.buttons.pay).click();
+    await page.waitForURL(/checkout\.pagopa\.it\//, { timeout: 15000 });
+    await expect(page.getByLabel('Email')).toBeVisible();
+  });
+
+  await test.step('Step 5: Cancel payment to land on pagamento-annullato', async () => {
+    await page.getByRole('button', { name: 'Indietro' }).click();
+    await expect(page).toHaveURL(/esito\/pagamento-annullato/);
+
+    // Wait for the cancel page to fully render and settle before navigating away
+    await expect(page.getByTestId('courtesyPage.title')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+  });
+
+  await test.step('Step 6: Simulate failed payment by rewriting the URL', async () => {
+    const failureUrl = page.url().replace('pagamento-annullato', 'pagamento-non-riuscito');
+    await page.goto(failureUrl);
+
+    await expect(page).toHaveURL(/esito\/pagamento-non-riuscito/);
+    await expect(page.getByTestId('courtesyPage.title')).toBeVisible();
+    await expect(page.getByTestId('courtesyPage.cta')).toBeVisible();
+  });
 });
