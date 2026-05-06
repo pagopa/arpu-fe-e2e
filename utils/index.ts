@@ -27,7 +27,8 @@ export const SELECTORS = {
     next: 'spontanei-controls-continue-button',
     back: 'spontanei-controls-back-button',
     pay: 'pay-button',
-    downloadNotice: 'download-notice-button'
+    downloadNotice: 'download-notice-button',
+    retry: 'courtesyPage.cta'
   },
   inputs: {
     fullName: '[id="fullName"]',

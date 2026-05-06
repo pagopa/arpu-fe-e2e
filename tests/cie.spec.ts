@@ -302,3 +302,113 @@ test('CIE-006 - Come cittadino voglio pagare online per richiedere o rinnovare l
     await expect(page.getByTestId('courtesyPage.cta')).toBeVisible();
   });
 });
+
+test('CIE-007 - Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica, ma il pagamento non va a buon fine e decido di riprovare', async ({
+  page
+}) => {
+  test.slow();
+
+  let reason: Reason;
+  let municipality: Municipality;
+  let paymentAmount: string;
+
+  const reasonsResponsePromise = page.waitForResponse(REASONS_API);
+  const municipalityResponsePromise = page.waitForResponse(MUNICIPALITIES_API);
+
+  await page.goto(TEST_URL);
+
+  await test.step('Step 1: Select reason', async () => {
+    const availableReasons: ReasonResponse = await (await reasonsResponsePromise).json();
+    reason = getRandomFrom(availableReasons);
+
+    await page.getByText(reason.description).click();
+    await page.getByTestId(SELECTORS.buttons.next).click();
+  });
+
+  await test.step('Step 2: Fill form with data', async () => {
+    const availableMunicipalities: MunicipalityResponse = await (
+      await municipalityResponsePromise
+    ).json();
+    municipality = getRandomFrom(availableMunicipalities.result);
+
+    const amountResponsePromise = page.waitForResponse(
+      `**/pu/cie/public/organizations/${municipality.value}/amount?debtPositionTypeOrgCode=${reason.code}`
+    );
+
+    await page.locator(SELECTORS.inputs.orgFiscalCode).click();
+    await page.getByRole('option', { name: municipality.label }).click();
+    await amountResponsePromise;
+
+    await page.locator(SELECTORS.inputs.fullName).fill(userData.name);
+    await page.locator(SELECTORS.inputs.fiscalCode).fill(userData.fiscal_code);
+    await page.locator(SELECTORS.inputs.email).fill(userData.email);
+    await page.getByTestId(SELECTORS.buttons.next).click();
+  });
+
+  await test.step('Step 3: Capture amount and create debt position', async () => {
+    const amount = await page.getByTestId(SELECTORS.summary.amount).textContent();
+    const parsedAmount = parseCurrencyToNumber(amount || '');
+    expect(parsedAmount).toBeGreaterThan(MIN_AMOUNT);
+
+    paymentAmount = new Intl.NumberFormat('it-IT', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(parsedAmount);
+
+    const debtPositionResponse = page.waitForResponse(
+      (r) => r.url().includes('spontaneous/debt-positions') && r.request().method() === 'POST'
+    );
+
+    await page.getByTestId(SELECTORS.buttons.next).click();
+
+    const response = await debtPositionResponse;
+    expect(response.ok()).toBeTruthy();
+    await expect(page.getByTestId(SELECTORS.buttons.pay)).toBeVisible();
+  });
+
+  await test.step('Step 4: Proceed to payment checkout', async () => {
+    await page.getByTestId(SELECTORS.buttons.pay).click();
+    await page.waitForURL(/checkout\.pagopa\.it\//, { timeout: 15000 });
+    await expect(page.getByLabel('Email')).toBeVisible();
+  });
+
+  await test.step('Step 5: Cancel payment and simulate failure', async () => {
+    await page.getByRole('button', { name: 'Indietro' }).click();
+    await expect(page).toHaveURL(/esito\/pagamento-annullato/);
+    await expect(page.getByTestId('courtesyPage.title')).toBeVisible();
+    await page.waitForLoadState('networkidle');
+
+    const failureUrl = page.url().replace('pagamento-annullato', 'pagamento-non-riuscito');
+    await page.goto(failureUrl);
+
+    await expect(page).toHaveURL(/esito\/pagamento-non-riuscito/);
+    await expect(page.getByTestId(SELECTORS.buttons.retry)).toBeVisible();
+
+    // give the page time to "settle" like a human would
+    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
+  });
+
+  await test.step('Step 6: Click "Riprova" and verify checkout redirect', async () => {
+    await page.getByTestId(SELECTORS.buttons.retry).click();
+    await page.waitForURL(/checkout\.pagopa\.it\//, { timeout: 15000 });
+  });
+
+  await test.step('Step 7: Complete payment on checkout', async () => {
+    await expect(page.getByRole('button').filter({ hasText: paymentAmount })).toBeVisible();
+
+    await expect(page.getByLabel('Email')).toHaveValue('');
+    await page.getByLabel('Email').fill(userData.email);
+    await page.getByLabel('Ripeti di nuovo').fill(userData.email);
+    await page.getByRole('button', { name: 'Continua' }).click();
+
+    await page.getByRole('button', { name: 'Carta di credito o debito' }).click();
+  });
+
+  await test.step('Step 8: Simulate successful payment completion', async () => {
+    await page.goto('/cittadini/cie/public/esito/pagamento-avviso-completato');
+    await expect(page).toHaveURL('/cittadini/cie/public/esito/pagamento-avviso-completato');
+  });
+});
