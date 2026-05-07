@@ -1,10 +1,15 @@
 import { test, expect } from '@playwright/test';
-import { avaiableMunicipalities, availableReasons, userData } from '../utils/index.ts';
+import {
+  getRandomFrom,
+  Municipality,
+  MunicipalityResponse,
+  Reason,
+  ReasonResponse,
+  userData
+} from '../utils/index.ts';
+import { REASONS_API, MUNICIPALITIES_API } from '../utils/api.ts';
 
 const TEST_URL = '/cittadini/cie/public/spontanei/';
-
-const reason = availableReasons[0];
-const municipality = avaiableMunicipalities[0];
 
 const SELECTORS = {
   buttons: {
@@ -22,20 +27,34 @@ const SELECTORS = {
   }
 };
 
+let reason: Reason;
+let municipality: Municipality;
+
 test('CIE-004 - Come cittadino voglio pagare online per richiedere o rinnovare la Carta di Identità elettronica, ma decido di annullare il pagamento', async ({
   page
 }) => {
   test.slow();
+
+  let avaiableReasons: ReasonResponse;
+  let avaiableMunicipalities: MunicipalityResponse;
+  const reasonsResponsePromise = page.waitForResponse(REASONS_API);
+  const municipalityResponse = page.waitForResponse(MUNICIPALITIES_API);
   await page.goto(TEST_URL);
 
   await test.step('Step 1: Select reason', async () => {
-    await page.getByText(reason.name).click();
+    avaiableReasons = await (await reasonsResponsePromise).json();
+    reason = getRandomFrom(avaiableReasons);
+
+    await page.getByText(reason.description).click();
     await page.getByTestId(SELECTORS.buttons.next).click();
   });
 
   await test.step('Step 2: Fill form with data', async () => {
+    avaiableMunicipalities = await (await municipalityResponse).json();
+    municipality = getRandomFrom(avaiableMunicipalities.result);
+
     await page.locator(SELECTORS.inputs.orgFiscalCode).click();
-    await page.getByRole('option', { name: municipality.name }).click();
+    await page.getByRole('option', { name: municipality.label }).click();
 
     await page.locator(SELECTORS.inputs.fullName).fill(userData.name);
     await page.locator(SELECTORS.inputs.fiscalCode).fill(userData.fiscal_code);
