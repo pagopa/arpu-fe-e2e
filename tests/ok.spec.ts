@@ -9,11 +9,9 @@ import {
   type MunicipalityResponse,
   SELECTORS
 } from '../utils/index.ts';
+import { MUNICIPALITIES_API, REASONS_API } from '../utils/api.ts';
 
 const TEST_URL = '/cittadini/cie/public/spontanei/';
-const REASONS_API =
-  /arc\/v1\/public\/brokers\/([0-9]*)\/spontaneous\/organizations\/([0-9]*)\/debt-position-type-orgs/;
-const MUNICIPALITIES_API = /pu\/cie\/public\/organizations/;
 
 const MIN_AMOUNT = 1;
 
