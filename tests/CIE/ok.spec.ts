@@ -4,7 +4,7 @@ import {
   paymentAmount,
   municipality
 } from './fixtures/cie.fixture.ts';
-import { SELECTORS, userData } from '../utils/index.ts';
+import { SELECTORS, userData } from '../../utils/index.ts';
 import { expect } from '@playwright/test';
 
 // Enable randomness

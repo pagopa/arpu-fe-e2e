@@ -1,5 +1,5 @@
 import { cie as test, RANDOMNESS_CONFIG, paymentAmount } from './fixtures/cie.fixture.ts';
-import { SELECTORS, userData } from '../utils/index.ts';
+import { SELECTORS, userData } from '../../utils/index.ts';
 import { expect } from '@playwright/test';
 
 // Disable randomness
