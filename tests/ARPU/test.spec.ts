@@ -1,12 +1,12 @@
 import { test, expect } from '@playwright/test';
 
 const TEST_URL = '/cittadini/ptdemo/accesso';
-const TEST_IUV = '50000000000040684';
+const TEST_IUV = '50000000001140314';
 const TEST_CF = 'PLOMRC01P30L736Y';
 
 const noticeInfo = {
   ec: 'EC DEMO',
-  amount: '111,00 €'
+  amount: '97,50 €'
 };
 
 test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
