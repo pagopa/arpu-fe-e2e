@@ -8,7 +8,7 @@ const TEST_CF = 'PLOMRC01P30L736Y';
 const noticeInfo = {
   ec: 'EC DEMO',
   amount: '97,50 €',
-  orgFisacalCode: '00199999000013',
+  orgFisacalCode: '00199999000013'
 };
 
 test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
@@ -44,6 +44,10 @@ test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricar
   await expect(ec).toHaveText(noticeInfo.ec);
 
   //Simulate successful completion
-  await page.goto(`${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`);
-  await page.waitForURL(`${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`);
+  await page.goto(
+    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
+  );
+  await page.waitForURL(
+    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
+  );
 });
