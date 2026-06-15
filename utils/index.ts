@@ -50,6 +50,13 @@ export const SELECTORS = {
     debtorName: 'summary-debtor-name-value',
     debtorCode: 'summary-debtor-code-value',
     debtorEmail: 'summary-debtor-email-value'
+  },
+  noticeSearch: {
+    iuvInput: '[id="iuvOrNav"]',
+    cfInput: '[id="fiscalCode"]',
+    searchButton: 'button[type="submit"]',
+    downloadButton: 'button[aria-label="Scarica"]',
+    payButtonLabel: 'Paga ora'
   }
 };
 

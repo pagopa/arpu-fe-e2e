@@ -8,8 +8,8 @@ import {
   type ReasonResponse,
   type MunicipalityResponse,
   SELECTORS
-} from '../../utils';
-import { MUNICIPALITIES_API, REASONS_API } from '../../utils/api.ts';
+} from '../../../utils';
+import { MUNICIPALITIES_API, REASONS_API } from '../../../utils/api.ts';
 
 const TEST_URL = '/cittadini/cie/public/spontanei/';
 const MIN_AMOUNT = 1;
