@@ -34,7 +34,9 @@ export const SELECTORS = {
     fullName: '[id="fullName"]',
     fiscalCode: '[id="fiscalCode"]',
     email: '[id="email"]',
-    orgFiscalCode: '[id="orgFiscalCode"]'
+    orgFiscalCode: '[id="orgFiscalCode"]',
+    amount: '[name="amount"]',
+    description: '[name="description"]'
   },
   helpers: {
     fullName: '[id="fullName-helper-text"]',
