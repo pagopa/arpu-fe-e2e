@@ -4,9 +4,9 @@ import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = '/cittadini/ptdemo';
 const TEST_IUV_OR_NAV = '50000000001140314';
-const TEST_USER = 'Marco Polo'
+const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
-const TEST_EMAIL = 'marcopolo@test.it'
+const TEST_EMAIL = 'marcopolo@test.it';
 
 const noticeInfo = {
   ec: 'EC DEMO',
@@ -55,9 +55,9 @@ test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricar
   );
 });
 
-
-test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “spontaneo" e procedere con il pagamento', async ({ page }) => {
-
+test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “spontaneo" e procedere con il pagamento', async ({
+  page
+}) => {
   const TEST_OBJECT = 'ARPU-004 Causale di test';
   const TEST_REASON = '[E2E DO NOT DELETE]';
   const TEST_AMOUNT = '2,00 €';
@@ -66,7 +66,7 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await page.getByRole('button', { name: 'Fai un pagamento spontaneo' }).click();
 
   // Select Municipality
-  await page.getByLabel('Cerca per nome dell\'ente *').click();
+  await page.getByLabel("Cerca per nome dell'ente *").click();
   await page.getByRole('option', { name: noticeInfo.ec }).click();
   await page.getByTestId(SELECTORS.buttons.next).click();
 
@@ -98,7 +98,6 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await expect(page.getByTestId('summary-payment-description-value')).toContainText(TEST_OBJECT);
 
   await page.getByTestId(SELECTORS.buttons.next).click();
-
 
   //download notice pd
   const noticeResponsePromise = page.waitForResponse(NOTICE_API);
@@ -137,5 +136,4 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await page.waitForURL(
     `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${nav}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
   );
-
 });
