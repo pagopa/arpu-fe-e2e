@@ -26,6 +26,7 @@ export const SELECTORS = {
   buttons: {
     next: 'spontanei-controls-continue-button',
     back: 'spontanei-controls-back-button',
+    org: '[name="org"]',
     pay: 'pay-button',
     downloadNotice: 'download-notice-button',
     retry: 'courtesyPage.cta'
@@ -34,7 +35,9 @@ export const SELECTORS = {
     fullName: '[id="fullName"]',
     fiscalCode: '[id="fiscalCode"]',
     email: '[id="email"]',
-    orgFiscalCode: '[id="orgFiscalCode"]'
+    orgFiscalCode: '[id="orgFiscalCode"]',
+    amount: '[name="amount"]',
+    description: '[name="description"]'
   },
   helpers: {
     fullName: '[id="fullName-helper-text"]',
