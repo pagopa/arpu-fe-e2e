@@ -60,7 +60,8 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
 }) => {
   const TEST_OBJECT = 'ARPU-004 Causale di test';
   const TEST_REASON = '[E2E DO NOT DELETE]';
-  const TEST_AMOUNT = '2,00 €';
+  const TEST_AMOUNT_FORMATED = '2,00 €';
+  const TEST_AMOUNT_VALUE = '2';
 
   await page.goto(`${TEST_URL}/accesso`);
   await page.getByRole('button', { name: 'Fai un pagamento spontaneo' }).click();
@@ -84,12 +85,12 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await page.locator(SELECTORS.inputs.fiscalCode).click();
   await page.locator(SELECTORS.inputs.fiscalCode).fill(TEST_CF);
   await page.locator(SELECTORS.inputs.amount).click();
-  await page.locator(SELECTORS.inputs.amount).fill('2');
+  await page.locator(SELECTORS.inputs.amount).fill(TEST_AMOUNT_VALUE);
   await page.getByTestId(SELECTORS.buttons.next).click();
 
   // Resume
   await expect(page.getByTestId('summary-org-name-value')).toContainText(noticeInfo.ec);
-  await expect(page.getByTestId('summary-payment-amount-value')).toContainText(TEST_AMOUNT);
+  await expect(page.getByTestId('summary-payment-amount-value')).toContainText(TEST_AMOUNT_FORMATED);
   await expect(page.getByTestId('summary-org-code-value')).toContainText(noticeInfo.orgFisacalCode);
   await expect(page.getByTestId('summary-service-name-value')).toContainText(TEST_REASON);
   await expect(page.getByTestId('summary-debtor-name-value')).toContainText(TEST_USER);
@@ -124,10 +125,10 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await page.getByLabel('Apri riepilogo pagamento').click();
 
   const amount = page.getByText('Importo', { exact: true }).locator('//following-sibling::*[1]');
-  await expect(amount).toHaveText('2,00 €');
+  await expect(amount).toHaveText(TEST_AMOUNT_FORMATED);
 
   const ec = page.getByText('Ente Creditore', { exact: true }).locator('//following-sibling::*[1]');
-  await expect(ec).toHaveText('EC DEMO');
+  await expect(ec).toHaveText(noticeInfo.ec);
 
   //Simulate successful completion
   await page.goto(
