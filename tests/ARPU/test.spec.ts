@@ -66,7 +66,7 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   await page.getByRole('button', { name: 'Fai un pagamento spontaneo' }).click();
 
   // Select Municipality
-  await page.getByLabel("Cerca per nome dell'ente *").click();
+  await page.locator(SELECTORS.buttons.org).click();
   await page.getByRole('option', { name: noticeInfo.ec }).click();
   await page.getByTestId(SELECTORS.buttons.next).click();
 
