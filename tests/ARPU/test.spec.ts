@@ -90,7 +90,9 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
 
   // Resume
   await expect(page.getByTestId('summary-org-name-value')).toContainText(noticeInfo.ec);
-  await expect(page.getByTestId('summary-payment-amount-value')).toContainText(TEST_AMOUNT_FORMATED);
+  await expect(page.getByTestId('summary-payment-amount-value')).toContainText(
+    TEST_AMOUNT_FORMATED
+  );
   await expect(page.getByTestId('summary-org-code-value')).toContainText(noticeInfo.orgFisacalCode);
   await expect(page.getByTestId('summary-service-name-value')).toContainText(TEST_REASON);
   await expect(page.getByTestId('summary-debtor-name-value')).toContainText(TEST_USER);
