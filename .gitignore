@@ -11,3 +11,7 @@ node_modules/
 .env
 auth/
 
+### Terraform ###
+**/.terraform/*
+*.tfstate
+*.tfstate.*
