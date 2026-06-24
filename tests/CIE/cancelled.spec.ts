@@ -43,8 +43,14 @@ test("CIE-005 - Come cittadino voglio annullare il pagamento online per richiede
   });
 
   await test.step('Download payment notice from cancellation page', async () => {
+    const downloadCta = CIE.getByTestId('courtesyPage.downloadCta');
+    // The CTA href is built from an async installments fetch; until it resolves
+    // the link points to a fallback courtesy page (not the download route), so
+    // clicking too early opens the wrong tab and no download ever fires.
+    await expect(downloadCta).toHaveAttribute('href', /spontanei\/download/);
+
     const newPagePromise = CIE.waitForEvent('popup');
-    await CIE.getByTestId('courtesyPage.downloadCta').click();
+    await downloadCta.click();
 
     const newPage = await newPagePromise;
     const download = await newPage.waitForEvent('download');
