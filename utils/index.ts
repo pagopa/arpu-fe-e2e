@@ -29,7 +29,9 @@ export const SELECTORS = {
     org: '[name="org"]',
     pay: 'pay-button',
     downloadNotice: 'download-notice-button',
-    retry: 'courtesyPage.cta'
+    retry: 'courtesyPage.cta',
+    login: 'loginPage-cta3',
+    spontaneousPayment: 'loginPage-cta1'
   },
   inputs: {
     fullName: '[id="fullName"]',
@@ -58,8 +60,9 @@ export const SELECTORS = {
     iuvInput: '[id="iuvOrNav"]',
     cfInput: '[id="fiscalCode"]',
     searchButton: 'button[type="submit"]',
-    downloadButton: 'button[aria-label="Scarica"]',
-    payButtonLabel: 'Paga ora'
+    downloadButton: 'download-payment-notice-button',
+    statusClass: '.status__UNPAID',
+    payButtonLabel: 'pay-now-button'
   }
 };
 

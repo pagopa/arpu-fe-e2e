@@ -18,7 +18,7 @@ test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricar
   page
 }) => {
   await page.goto(`${TEST_URL}/accesso`);
-  await page.getByRole('button', { name: 'Cerca un avviso' }).click();
+  await page.getByTestId(SELECTORS.buttons.login).click();
 
   // form compilation
   await page.locator(SELECTORS.noticeSearch.iuvInput).fill(TEST_IUV_OR_NAV);
@@ -26,16 +26,16 @@ test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricar
   await page.locator(SELECTORS.noticeSearch.searchButton).click();
 
   //download notice pdf
-  await expect(page.locator('span.MuiChip-label')).toContainText('Da pagare');
+  await expect(page.locator(SELECTORS.noticeSearch.statusClass)).toBeVisible();
   const downloadPromise = page.waitForEvent('download');
-  await page.locator(SELECTORS.noticeSearch.downloadButton).click();
+  await page.getByTestId(SELECTORS.noticeSearch.downloadButton).click();
   const download = await downloadPromise;
 
   expect(download.suggestedFilename()).toContain('.pdf');
 
   //pay notice
   await page.goBack();
-  await page.getByRole('button', { name: SELECTORS.noticeSearch.payButtonLabel }).click();
+  await page.getByTestId(SELECTORS.noticeSearch.payButtonLabel).click();
 
   //CHECKOUT
   await page.getByLabel('Apri riepilogo pagamento').click();
@@ -64,7 +64,7 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   const TEST_AMOUNT_VALUE = '2';
 
   await page.goto(`${TEST_URL}/accesso`);
-  await page.getByRole('button', { name: 'Fai un pagamento spontaneo' }).click();
+  await page.getByTestId(SELECTORS.buttons.spontaneousPayment).click();
 
   // Select Municipality
   await page.locator(SELECTORS.buttons.org).click();
