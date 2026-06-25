@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { SELECTORS } from '../../utils';
+import { test as authTest } from './fixtures/auth.spec'
+import { SELECTORS, ARPU_BROKER_URL } from '../../utils';
 import { NOTICE_API } from '../../utils/api';
 
-const TEST_URL = '/cittadini/ptdemo';
+const TEST_URL = ARPU_BROKER_URL;
 const TEST_IUV_OR_NAV = '50000000001140314';
 const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
@@ -14,45 +15,10 @@ const noticeInfo = {
   orgFisacalCode: '99999000013'
 };
 
-test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
-  page
-}) => {
-  await page.goto(`${TEST_URL}/accesso`);
-  await page.getByTestId(SELECTORS.buttons.login).click();
-
-  // form compilation
-  await page.locator(SELECTORS.noticeSearch.iuvInput).fill(TEST_IUV_OR_NAV);
-  await page.locator(SELECTORS.noticeSearch.cfInput).fill(TEST_CF);
-  await page.locator(SELECTORS.noticeSearch.searchButton).click();
-
-  //download notice pdf
-  await expect(page.locator(SELECTORS.noticeSearch.statusClass)).toBeVisible();
-  const downloadPromise = page.waitForEvent('download');
-  await page.getByTestId(SELECTORS.noticeSearch.downloadButton).click();
-  const download = await downloadPromise;
-
-  expect(download.suggestedFilename()).toContain('.pdf');
-
-  //pay notice
-  await page.goBack();
-  await page.getByTestId(SELECTORS.noticeSearch.payButtonLabel).click();
-
-  //CHECKOUT
-  await page.getByLabel('Apri riepilogo pagamento').click();
-
-  const amount = page.getByText('Importo', { exact: true }).locator('//following-sibling::*[1]');
-  await expect(amount).toHaveText(noticeInfo.amount);
-
-  const ec = page.getByText('Ente Creditore', { exact: true }).locator('//following-sibling::*[1]');
-  await expect(ec).toHaveText(noticeInfo.ec);
-
-  //Simulate successful completion
-  await page.goto(
-    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
-  );
-  await page.waitForURL(
-    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
-  );
+authTest('ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento', async ({ authenticatedPage }) => {
+  await authenticatedPage.goto(`${TEST_URL}/dashboard`);
+  expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
+  // add mores steps according to the ARPU-002 test case
 });
 
 test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “spontaneo" e procedere con il pagamento', async ({
@@ -138,5 +104,52 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   );
   await page.waitForURL(
     `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${nav}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
+  );
+});
+
+authTest('ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf', async ({ authenticatedPage }) => {
+  await authenticatedPage.goto(`${TEST_URL}/dashboard`);
+  expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
+  // add mores steps according to the ARPU-005 test case
+});
+
+test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
+  page
+}) => {
+  await page.goto(`${TEST_URL}/accesso`);
+  await page.getByTestId(SELECTORS.buttons.login).click();
+
+  // form compilation
+  await page.locator(SELECTORS.noticeSearch.iuvInput).fill(TEST_IUV_OR_NAV);
+  await page.locator(SELECTORS.noticeSearch.cfInput).fill(TEST_CF);
+  await page.locator(SELECTORS.noticeSearch.searchButton).click();
+
+  //download notice pdf
+  await expect(page.locator(SELECTORS.noticeSearch.statusClass)).toBeVisible();
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByTestId(SELECTORS.noticeSearch.downloadButton).click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toContain('.pdf');
+
+  //pay notice
+  await page.goBack();
+  await page.getByTestId(SELECTORS.noticeSearch.payButtonLabel).click();
+
+  //CHECKOUT
+  await page.getByLabel('Apri riepilogo pagamento').click();
+
+  const amount = page.getByText('Importo', { exact: true }).locator('//following-sibling::*[1]');
+  await expect(amount).toHaveText(noticeInfo.amount);
+
+  const ec = page.getByText('Ente Creditore', { exact: true }).locator('//following-sibling::*[1]');
+  await expect(ec).toHaveText(noticeInfo.ec);
+
+  //Simulate successful completion
+  await page.goto(
+    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
+  );
+  await page.waitForURL(
+    `${TEST_URL}/public/esito/pagamento-avviso-completato?nav=${TEST_IUV_OR_NAV}&org_fiscal_code=${noticeInfo.orgFisacalCode}`
   );
 });
