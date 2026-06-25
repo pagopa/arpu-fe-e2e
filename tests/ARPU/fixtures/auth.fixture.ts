@@ -8,7 +8,6 @@ const PASSWORD = process.env.USER_PASSWORD ?? '';
 
 export const test = base.extend<{ authenticatedPage: Page }>({
   authenticatedPage: async ({ browser }, use) => {
-
     const hasValidSession = fs.existsSync(AUTH_FILE);
 
     if (!hasValidSession) {
@@ -44,5 +43,5 @@ export const test = base.extend<{ authenticatedPage: Page }>({
 
     await use(authPage);
     await authContext.close();
-  },
+  }
 });

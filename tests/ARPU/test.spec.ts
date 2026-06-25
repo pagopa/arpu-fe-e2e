@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { test as authTest } from './fixtures/auth.spec'
+import { test as authTest } from './fixtures/auth.fixture';
 import { SELECTORS, ARPU_BROKER_URL } from '../../utils';
 import { NOTICE_API } from '../../utils/api';
 
@@ -15,11 +15,14 @@ const noticeInfo = {
   orgFisacalCode: '99999000013'
 };
 
-authTest('ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento', async ({ authenticatedPage }) => {
-  await authenticatedPage.goto(`${TEST_URL}/dashboard`);
-  expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
-  // add mores steps according to the ARPU-002 test case
-});
+authTest(
+  'ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento',
+  async ({ authenticatedPage }) => {
+    await authenticatedPage.goto(`${TEST_URL}/dashboard`);
+    expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
+    // add mores steps according to the ARPU-002 test case
+  }
+);
 
 test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “spontaneo" e procedere con il pagamento', async ({
   page
@@ -107,11 +110,14 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   );
 });
 
-authTest('ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf', async ({ authenticatedPage }) => {
-  await authenticatedPage.goto(`${TEST_URL}/dashboard`);
-  expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
-  // add mores steps according to the ARPU-005 test case
-});
+authTest(
+  'ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf',
+  async ({ authenticatedPage }) => {
+    await authenticatedPage.goto(`${TEST_URL}/dashboard`);
+    expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
+    // add mores steps according to the ARPU-005 test case
+  }
+);
 
 test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
   page
