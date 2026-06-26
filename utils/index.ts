@@ -83,3 +83,5 @@ export function parseCurrencyToNumber(currencyString: string): number {
   const sanitized = currencyString.replace(/[^\d,.-]/g, '').replace(',', '.');
   return parseFloat(sanitized);
 }
+
+export const ARPU_BROKER_URL = '/cittadini/ptdemo';

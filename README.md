@@ -24,6 +24,8 @@ The table below describes all the Environment variables needed by the applicatio
 | Variable name                    | Description                | type                  |
 | -------------------------------- | -------------------------- | --------------------- |
 | BASE_URL                         | the target site            | url                   |
+| USER_NAME                        | the user name              | string                |
+| USER_PASSWORD                    | the user password          | string                |
 
 ### Installation
 

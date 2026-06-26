@@ -37,6 +37,8 @@ jobs:
         run: |
           touch .env
           echo BASE_URL=https://uat.p4pa.pagopa.it >> .env
+          echo USER_USERNAME=${{ secrets.USER_USERNAME_UAT }} >> .env
+          echo USER_PASSWORD=${{ secrets.USER_PASSWORD_UAT }} >> .env
           cat .env
 
       - name: run e2e tests
