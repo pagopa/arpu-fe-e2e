@@ -5,7 +5,7 @@ import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = ARPU_BROKER_URL;
 const TEST_IUV_OR_NAV = '50000000001140314';
-const TEST_PAID_IUV = '301000000230616789';
+const TEST_PAID_IUV = '302000000073897681';
 const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
 const TEST_EMAIL = 'marcopolo@test.it';
