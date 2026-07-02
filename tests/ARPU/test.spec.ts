@@ -111,18 +111,17 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   );
 });
 
-authTest(
-  'ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf',
-  async ({ page }) => {
-    await page.goto(
-      `/cittadini/demo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
-    );
-    await page.getByTestId('download-receipt-button').click();
-    const downloadPromise = page.waitForEvent('download');
-    const download = await downloadPromise;
-    expect(download.suggestedFilename()).toContain('.pdf');
-  }
-);
+test('ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf', async ({
+  page
+}) => {
+  await page.goto(
+    `/cittadini/demo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
+  );
+  await page.getByTestId('download-receipt-button').click();
+  const downloadPromise = page.waitForEvent('download');
+  const download = await downloadPromise;
+  expect(download.suggestedFilename()).toContain('.pdf');
+});
 
 test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
   page
