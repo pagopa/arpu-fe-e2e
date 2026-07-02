@@ -5,6 +5,7 @@ import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = ARPU_BROKER_URL;
 const TEST_IUV_OR_NAV = '50000000001140314';
+const TEST_PAID_IUV = '301000000230616789';
 const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
 const TEST_EMAIL = 'marcopolo@test.it';
@@ -112,10 +113,14 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
 
 authTest(
   'ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf',
-  async ({ authenticatedPage }) => {
-    await authenticatedPage.goto(`${TEST_URL}/dashboard`);
-    expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
-    // add mores steps according to the ARPU-005 test case
+  async ({ page }) => {
+    await page.goto(
+      `/cittadini/demo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
+    );
+    await page.getByTestId('download-receipt-button').click();
+    const downloadPromise = page.waitForEvent('download');
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toContain('.pdf');
   }
 );
 
