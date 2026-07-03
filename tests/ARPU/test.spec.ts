@@ -24,8 +24,13 @@ authTest(
 
     const content = authenticatedPage.getByRole('main');
     const firstReceipt = content.getByRole('listitem').first();
+    const orgName = await firstReceipt.locator('h3').textContent();
+    const description = await firstReceipt.locator('h4').textContent();
 
     await firstReceipt.getByRole('button', { name: 'Vai al dettaglio' }).click();
+
+    await expect(authenticatedPage.getByText(orgName!)).toBeVisible();
+    await expect(authenticatedPage.getByText(description!)).toBeVisible();
 
     const downloadPromise = authenticatedPage.waitForEvent('download');
     await authenticatedPage.getByRole('button', { name: 'Scarica ricevuta' }).click();
