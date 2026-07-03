@@ -5,6 +5,7 @@ import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = ARPU_BROKER_URL;
 const TEST_IUV_OR_NAV = '50000000001140314';
+const TEST_PAID_IUV = '350000000001168214';
 const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
 const TEST_EMAIL = 'marcopolo@test.it';
@@ -13,6 +14,12 @@ const noticeInfo = {
   ec: 'EC DEMO',
   amount: '97,50 €',
   orgFisacalCode: '99999000013'
+};
+
+const receiptInfo = {
+  amount: '3,00 €',
+  noticeCode: '50000000001168214',
+  ec: 'EC DEMO'
 };
 
 authTest(
@@ -110,14 +117,29 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
   );
 });
 
-authTest(
-  'ARPU-005 - Come cittadino voglio recuperare una ricevute di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf',
-  async ({ authenticatedPage }) => {
-    await authenticatedPage.goto(`${TEST_URL}/dashboard`);
-    expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
-    // add mores steps according to the ARPU-005 test case
-  }
-);
+test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf', async ({
+  page
+}) => {
+  await page.goto(
+    `${TEST_URL}/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
+  );
+
+  await expect(page.getByText(receiptInfo.amount)).toBeVisible();
+  await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
+  await expect(page.getByText(receiptInfo.ec)).toBeVisible();
+
+  await page.getByTestId('detail-button').click();
+
+  await expect(page.getByText(receiptInfo.amount)).toBeVisible();
+  await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
+  await expect(page.getByText(receiptInfo.ec)).toBeVisible();
+
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Scarica ricevuta' }).click();
+  const download = await downloadPromise;
+
+  expect(download.suggestedFilename()).toContain('.pdf');
+});
 
 test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricare il pdf e procedere con il pagamento', async ({
   page
