@@ -23,11 +23,27 @@ const receiptInfo = {
 };
 
 authTest(
-  'ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento',
+  'ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento dalla lista ricevute',
   async ({ authenticatedPage }) => {
-    await authenticatedPage.goto(`${TEST_URL}/dashboard`);
-    expect(authenticatedPage.url()).toContain(`${TEST_URL}/dashboard`);
-    // add mores steps according to the ARPU-002 test case
+    await authenticatedPage.goto(`${TEST_URL}`);
+    await authenticatedPage.locator('span', { hasText: 'Ricevute' }).click();
+    expect(authenticatedPage.url()).toContain(`${TEST_URL}/ricevute`);
+
+    const content = authenticatedPage.getByRole('main');
+    const firstReceipt = content.getByRole('listitem').first();
+    const orgName = await firstReceipt.locator('h3').textContent();
+    const description = await firstReceipt.locator('h4').textContent();
+
+    await firstReceipt.getByRole('button', { name: 'Vai al dettaglio' }).click();
+
+    await expect(authenticatedPage.getByText(orgName!)).toBeVisible();
+    await expect(authenticatedPage.getByText(description!)).toBeVisible();
+
+    const downloadPromise = authenticatedPage.waitForEvent('download');
+    await authenticatedPage.getByRole('button', { name: 'Scarica ricevuta' }).click();
+    const download = await downloadPromise;
+
+    expect(download.suggestedFilename()).toContain('.pdf');
   }
 );
 
