@@ -5,7 +5,7 @@ import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = ARPU_BROKER_URL;
 const TEST_IUV_OR_NAV = '50000000001140314';
-const TEST_PAID_IUV = '302000000073897681';
+const TEST_PAID_IUV = '350000000001168214';
 const TEST_USER = 'Marco Polo';
 const TEST_CF = 'PLOMRC01P30L736Y';
 const TEST_EMAIL = 'marcopolo@test.it';
@@ -17,9 +17,9 @@ const noticeInfo = {
 };
 
 const receiptInfo = {
-  amount: '100,00 €',
-  noticeCode: '02000000073897681',
-  ec: 'Ente P4PA intermediato 2'
+  amount: '3,00 €',
+  noticeCode: '50000000001168214',
+  ec: 'EC DEMO'
 };
 
 authTest(
@@ -121,7 +121,7 @@ test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento c
   page
 }) => {
   await page.goto(
-    `/cittadini/demo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
+    `/cittadini/ptdemo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
   );
 
   expect(page.getByText(receiptInfo.amount)).toBeVisible();
@@ -134,9 +134,10 @@ test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento c
   expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
   expect(page.getByText(receiptInfo.ec)).toBeVisible();
 
-  await page.getByRole('button', { name: 'Scarica ricevuta' }).click();
   const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Scarica ricevuta' }).click();
   const download = await downloadPromise;
+
   expect(download.suggestedFilename()).toContain('.pdf');
 });
 
