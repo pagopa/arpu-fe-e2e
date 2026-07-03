@@ -121,18 +121,18 @@ test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento c
   page
 }) => {
   await page.goto(
-    `/cittadini/ptdemo/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
+    `${TEST_URL}/public/ricevute/ricerca#fiscalCode=${TEST_CF}&iuvOrNav=${TEST_PAID_IUV}`
   );
 
-  expect(page.getByText(receiptInfo.amount)).toBeVisible();
-  expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
-  expect(page.getByText(receiptInfo.ec)).toBeVisible();
+  await expect(page.getByText(receiptInfo.amount)).toBeVisible();
+  await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
+  await expect(page.getByText(receiptInfo.ec)).toBeVisible();
 
   await page.getByTestId('detail-button').click();
 
-  expect(page.getByText(receiptInfo.amount)).toBeVisible();
-  expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
-  expect(page.getByText(receiptInfo.ec)).toBeVisible();
+  await expect(page.getByText(receiptInfo.amount)).toBeVisible();
+  await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
+  await expect(page.getByText(receiptInfo.ec)).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Scarica ricevuta' }).click();
