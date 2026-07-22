@@ -125,9 +125,12 @@ export const simulateCheckoutPayment = async (page: Page, paymentDetails: Paymen
  */
 export const findNoticeByDescriptionUsingPagination = async (page: Page, description: string) => {
   let found = false;
+  let currentPage = 1;
   while (!found) {
+    await page.waitForTimeout(1000); // Wait for the page to load
     const notices = page.locator('[role="listitem"]');
     const count = await notices.count();
+    console.log(`Checking ${count} notices on page ${currentPage} for description: "${description}"`);
 
     for (let i = 0; i < count; i++) {
       const noticeDescription = await notices.nth(i).locator(`[data-testid="list-item-subtitle"]`).textContent();
@@ -143,7 +146,7 @@ export const findNoticeByDescriptionUsingPagination = async (page: Page, descrip
         break; // No more pages to navigate
       }
       await nextButton.click();
-      await page.waitForTimeout(1000); // Wait for the next page to load
+      currentPage++;
     }
   }
 
