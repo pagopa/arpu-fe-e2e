@@ -1,3 +1,5 @@
+import { expect, Page } from '@playwright/test';
+
 // TYPES AND INTERFACES
 export interface Municipality {
   label: string;
@@ -15,11 +17,25 @@ export interface Reason {
 
 export type ReasonResponse = Reason[];
 
+export interface PaymentDetails {
+  amount: string;
+  ec: string;
+  orgFiscalCode: string;
+  nav: string;
+  description?: string;
+  debtPositionId?: string;
+}
+
+// CONSTANTS
 export const userData = {
   name: 'Marco Polo',
-  fiscal_code: 'MRCPLO80A01H501J',
+  fiscal_code: 'PLOMRC01P30L736Y',
   email: 'marcopolo@test.it'
 };
+
+export const ARPU_BROKER_URL = '/cittadini/ptdemo';
+
+export const TEST_PAID_IUV = '350000000001168214';
 
 // SELECTORS
 export const SELECTORS = {
@@ -83,5 +99,53 @@ export function parseCurrencyToNumber(currencyString: string): number {
   const sanitized = currencyString.replace(/[^\d,.-]/g, '').replace(',', '.');
   return parseFloat(sanitized);
 }
+/**
+ * Simulates the checkout payment process for a given notice.
+ */
+export const simulateCheckoutPayment = async (page: Page, paymentDetails: PaymentDetails) => {
+  await page.getByLabel('Apri riepilogo pagamento').click();
 
-export const ARPU_BROKER_URL = '/cittadini/ptdemo';
+  const amount = page.getByText('Importo', { exact: true }).locator('//following-sibling::*[1]');
+  await expect(amount).toHaveText(paymentDetails.amount);
+
+  const ec = page.getByText('Ente Creditore', { exact: true }).locator('//following-sibling::*[1]');
+  await expect(ec).toHaveText(paymentDetails.ec);
+
+  //Simulate successful completion
+  await page.goto(
+    `${ARPU_BROKER_URL}/public/esito/pagamento-avviso-completato?nav=${paymentDetails.nav}&org_fiscal_code=${paymentDetails.orgFiscalCode}`
+  );
+  await page.waitForURL(
+    `${ARPU_BROKER_URL}/public/esito/pagamento-avviso-completato?nav=${paymentDetails.nav}&org_fiscal_code=${paymentDetails.orgFiscalCode}`
+  );
+}
+
+/**
+ * Finds a notice by its description using pagination.
+ */
+export const findNoticeByDescriptionUsingPagination = async (page: Page, description: string) => {
+  let found = false;
+  while (!found) {
+    const notices = page.locator('[role="listitem"]');
+    const count = await notices.count();
+
+    for (let i = 0; i < count; i++) {
+      const noticeDescription = await notices.nth(i).locator(`[data-testid="list-item-subtitle"]`).textContent();
+      if (noticeDescription === description) {
+        found = true;
+        break;
+      }
+    }
+
+    if (!found) {
+      const nextButton = page.getByLabel('Go to next page');
+      if (!(await nextButton.isVisible())) {
+        break; // No more pages to navigate
+      }
+      await nextButton.click();
+      await page.waitForTimeout(1000); // Wait for the next page to load
+    }
+  }
+
+  return found;
+}
