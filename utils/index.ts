@@ -118,7 +118,7 @@ export const simulateCheckoutPayment = async (page: Page, paymentDetails: Paymen
   await page.waitForURL(
     `${ARPU_BROKER_URL}/public/esito/pagamento-avviso-completato?nav=${paymentDetails.nav}&org_fiscal_code=${paymentDetails.orgFiscalCode}`
   );
-}
+};
 
 /**
  * Finds a notice by its description using pagination.
@@ -130,10 +130,15 @@ export const findNoticeByDescriptionUsingPagination = async (page: Page, descrip
     await page.waitForTimeout(1000); // Wait for the page to load
     const notices = page.locator('[role="listitem"]');
     const count = await notices.count();
-    console.log(`Checking ${count} notices on page ${currentPage} for description: "${description}"`);
+    console.log(
+      `Checking ${count} notices on page ${currentPage} for description: "${description}"`
+    );
 
     for (let i = 0; i < count; i++) {
-      const noticeDescription = await notices.nth(i).locator(`[data-testid="list-item-subtitle"]`).textContent();
+      const noticeDescription = await notices
+        .nth(i)
+        .locator(`[data-testid="list-item-subtitle"]`)
+        .textContent();
       if (noticeDescription === description) {
         found = true;
         break;
@@ -151,4 +156,4 @@ export const findNoticeByDescriptionUsingPagination = async (page: Page, descrip
   }
 
   return found;
-}
+};

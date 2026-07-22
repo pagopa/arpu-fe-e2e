@@ -1,6 +1,14 @@
 import { test, expect, Page } from '@playwright/test';
 import { test as authTest } from './fixtures/auth.fixture';
-import { SELECTORS, ARPU_BROKER_URL,  TEST_PAID_IUV, PaymentDetails, findNoticeByDescriptionUsingPagination, simulateCheckoutPayment, userData } from '../../utils';
+import {
+  SELECTORS,
+  ARPU_BROKER_URL,
+  TEST_PAID_IUV,
+  PaymentDetails,
+  findNoticeByDescriptionUsingPagination,
+  simulateCheckoutPayment,
+  userData
+} from '../../utils';
 import { NOTICE_API } from '../../utils/api';
 
 const TEST_URL = ARPU_BROKER_URL;
@@ -8,7 +16,6 @@ const TEST_URL = ARPU_BROKER_URL;
 authTest(
   'ARPU-001 - Come cittadino voglio pagare un avviso di pagamento',
   async ({ authenticatedPage }) => {
-
     const noticeInfo = {
       ec: 'EC DEMO',
       description: '[TEST E2E - DO NOT DELETE] Tipo dovuto di test',
@@ -21,13 +28,20 @@ authTest(
     await authenticatedPage.goto(`${TEST_URL}`);
     await authenticatedPage.getByRole('link', { name: 'Importi da pagare' }).click();
 
-    const result = await findNoticeByDescriptionUsingPagination(authenticatedPage, noticeInfo.description);
+    const result = await findNoticeByDescriptionUsingPagination(
+      authenticatedPage,
+      noticeInfo.description
+    );
     expect(result).toBe(true);
 
     if (!result) {
-      throw new Error(`Notice with the specified description "${noticeInfo.description}" not found.`);
+      throw new Error(
+        `Notice with the specified description "${noticeInfo.description}" not found.`
+      );
     }
-    await authenticatedPage.getByTestId(`receipt-details-button-${noticeInfo.debtPositionId}`).click();
+    await authenticatedPage
+      .getByTestId(`receipt-details-button-${noticeInfo.debtPositionId}`)
+      .click();
     await authenticatedPage.getByTestId('payment-option-action-pay').click();
 
     //CHECKOUT
@@ -139,7 +153,6 @@ test('ARPU-004 - Come cittadino voglio generare un avviso di pagamento “sponta
     orgFiscalCode: noticeInfo.orgFiscalCode,
     nav: nav
   });
-  
 });
 
 test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento che ho effettuato per poter consultare il dettaglio e scaricare il pdf', async ({
@@ -183,7 +196,6 @@ test('ARPU-006 - Come cittadino voglio cercare una avviso di pagamento, scaricar
     nav: '350000000001140314',
     debtPositionId: '528854'
   };
-
 
   await page.goto(`${TEST_URL}/accesso`);
   await page.getByTestId(SELECTORS.buttons.login).click();
