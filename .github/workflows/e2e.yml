@@ -48,5 +48,5 @@ jobs:
         if: always()
         uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./playwright-report
+          publish_dir: ./playwright-report
           github_token: ${{ secrets.GITHUB_TOKEN }}
