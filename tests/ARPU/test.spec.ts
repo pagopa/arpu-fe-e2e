@@ -5,7 +5,7 @@ import {
   ARPU_BROKER_URL,
   TEST_PAID_IUV,
   PaymentDetails,
-  findNoticeByDescriptionUsingPagination,
+  findDebPositionByDescriptionUsingPagination,
   simulateCheckoutPayment,
   userData
 } from '../../utils';
@@ -16,7 +16,8 @@ const TEST_URL = ARPU_BROKER_URL;
 authTest(
   'ARPU-001 - Come cittadino voglio pagare un avviso di pagamento',
   async ({ authenticatedPage }) => {
-    const noticeInfo = {
+
+    const debtPositionInfo = {
       ec: 'EC DEMO',
       description: '[TEST E2E - DO NOT DELETE] Tipo dovuto di test',
       amount: '97,50 €',
@@ -26,26 +27,28 @@ authTest(
     };
 
     await authenticatedPage.goto(`${TEST_URL}`);
-    await authenticatedPage.getByRole('link', { name: 'Importi da pagare' }).click();
+    await authenticatedPage.getByTestId(SELECTORS.sidebar.debtPositions).click();
 
-    const result = await findNoticeByDescriptionUsingPagination(
+    const result = await findDebPositionByDescriptionUsingPagination(
       authenticatedPage,
-      noticeInfo.description
+      debtPositionInfo.description
     );
     expect(result).toBe(true);
 
     if (!result) {
       throw new Error(
-        `Notice with the specified description "${noticeInfo.description}" not found.`
+        `Notice with the specified description "${debtPositionInfo.description}" not found.`
       );
     }
+  
     await authenticatedPage
-      .getByTestId(`receipt-details-button-${noticeInfo.debtPositionId}`)
+      .getByTestId(SELECTORS.debtPositionListPage.detailButton.replace(':debtPositionId', debtPositionInfo.debtPositionId!))
       .click();
-    await authenticatedPage.getByTestId('payment-option-action-pay').click();
+
+    await authenticatedPage.getByTestId(SELECTORS.debtPositionDetailPage.payButton).click();
 
     //CHECKOUT
-    await simulateCheckoutPayment(authenticatedPage, noticeInfo);
+    await simulateCheckoutPayment(authenticatedPage, debtPositionInfo);
   }
 );
 
@@ -53,21 +56,24 @@ authTest(
   'ARPU-002 - Come cittadino voglio scaricare una ricevuta di pagamento dalla lista ricevute',
   async ({ authenticatedPage }) => {
     await authenticatedPage.goto(`${TEST_URL}`);
-    await authenticatedPage.locator('span', { hasText: 'Ricevute' }).click();
+    await authenticatedPage.getByTestId(SELECTORS.sidebar.receipts).click();
+
     expect(authenticatedPage.url()).toContain(`${TEST_URL}/ricevute`);
 
     const content = authenticatedPage.getByRole('main');
     const firstReceipt = content.getByRole('listitem').first();
-    const orgName = await firstReceipt.locator('h3').textContent();
-    const description = await firstReceipt.locator('h4').textContent();
+    const orgName = await firstReceipt.getByTestId(SELECTORS.listItem.ec).textContent();
+    const description = await firstReceipt.getByTestId(SELECTORS.listItem.description).textContent();
 
-    await firstReceipt.getByRole('button', { name: 'Vai al dettaglio' }).click();
+    const receiptDetailButtonRegex = new RegExp(`${SELECTORS.receiptListPage.detailButton.replace(':receiptId', '([0-9])*')}`, 'i');
+
+    await firstReceipt.getByTestId(receiptDetailButtonRegex).click();
 
     await expect(authenticatedPage.getByText(orgName!)).toBeVisible();
     await expect(authenticatedPage.getByText(description!)).toBeVisible();
 
     const downloadPromise = authenticatedPage.waitForEvent('download');
-    await authenticatedPage.getByRole('button', { name: 'Scarica ricevuta' }).click();
+    await authenticatedPage.getByTestId(SELECTORS.receiptDetailPage.downloadButton).click();
     const download = await downloadPromise;
 
     expect(download.suggestedFilename()).toContain('.pdf');
@@ -172,14 +178,14 @@ test('ARPU-005 - Come cittadino voglio recuperare una ricevuta di un pagamento c
   await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
   await expect(page.getByText(receiptInfo.ec)).toBeVisible();
 
-  await page.getByTestId('detail-button').click();
+  await page.getByTestId(SELECTORS.searchPage.goToDetailButton).click();
 
   await expect(page.getByText(receiptInfo.amount)).toBeVisible();
   await expect(page.getByText(receiptInfo.noticeCode)).toBeVisible();
   await expect(page.getByText(receiptInfo.ec)).toBeVisible();
 
   const downloadPromise = page.waitForEvent('download');
-  await page.getByRole('button', { name: 'Scarica ricevuta' }).click();
+  await page.getByTestId(SELECTORS.receiptDetailPage.downloadButton).click();
   const download = await downloadPromise;
 
   expect(download.suggestedFilename()).toContain('.pdf');

@@ -79,7 +79,31 @@ export const SELECTORS = {
     downloadButton: 'download-payment-notice-button',
     statusClass: '.status__UNPAID',
     payButtonLabel: 'pay-now-button'
-  }
+  },
+  sidebar: {
+    home: 'sidebar-menu-item-homepage',
+    debtPositions: 'sidebar-menu-item-debt-positions',
+    receipts: 'sidebar-menu-item-receipts',
+  },
+  debtPositionListPage: {
+    detailButton: 'debt-position-detail-button-:debtPositionId',
+  },
+  receiptListPage: {
+    detailButton: 'receipt-detail-button-:receiptId',
+  },
+  receiptDetailPage: {
+    downloadButton: 'receipt-detail-download-button',
+  },
+  debtPositionDetailPage: {
+    payButton: 'payment-option-action-pay',
+  },
+  searchPage: {
+    goToDetailButton: 'search-item-detail-button',
+  },
+  listItem: {
+    ec: 'list-item-ec',
+    description: 'list-item-description',
+  },
 };
 
 // HELPERS
@@ -121,9 +145,9 @@ export const simulateCheckoutPayment = async (page: Page, paymentDetails: Paymen
 };
 
 /**
- * Finds a notice by its description using pagination.
+ * Finds a debt position by its description using pagination.
  */
-export const findNoticeByDescriptionUsingPagination = async (page: Page, description: string) => {
+export const findDebPositionByDescriptionUsingPagination = async (page: Page, description: string) => {
   let found = false;
   let currentPage = 1;
   while (!found) {
@@ -131,13 +155,13 @@ export const findNoticeByDescriptionUsingPagination = async (page: Page, descrip
     const notices = page.locator('[role="listitem"]');
     const count = await notices.count();
     console.log(
-      `Checking ${count} notices on page ${currentPage} for description: "${description}"`
+      `Checking ${count} debt positions on page ${currentPage} for description: "${description}"`
     );
 
     for (let i = 0; i < count; i++) {
       const noticeDescription = await notices
         .nth(i)
-        .locator(`[data-testid="list-item-subtitle"]`)
+        .getByTestId(SELECTORS.listItem.description)
         .textContent();
       if (noticeDescription === description) {
         found = true;
