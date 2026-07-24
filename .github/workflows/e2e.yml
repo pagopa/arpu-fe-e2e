@@ -43,3 +43,9 @@ jobs:
 
       - name: run e2e tests
         run: yarn test
+
+      - name: Upload Playwright report to GitHub Pages
+        if: always()
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: playwright-report
