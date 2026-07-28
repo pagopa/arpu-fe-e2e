@@ -43,10 +43,3 @@ jobs:
 
       - name: run e2e tests
         run: yarn test
-
-      - name: Upload Playwright report to GitHub Pages
-        if: always()
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          publish_dir: ./playwright-report
-          github_token: ${{ secrets.GITHUB_TOKEN }}

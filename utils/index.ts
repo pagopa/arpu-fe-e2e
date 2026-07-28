@@ -83,27 +83,27 @@ export const SELECTORS = {
   sidebar: {
     home: 'sidebar-menu-item-homepage',
     debtPositions: 'sidebar-menu-item-debt-positions',
-    receipts: 'sidebar-menu-item-receipts',
+    receipts: 'sidebar-menu-item-receipts'
   },
   debtPositionListPage: {
-    detailButton: 'debt-position-detail-button-:debtPositionId',
+    detailButton: 'debt-position-detail-button-:debtPositionId'
   },
   receiptListPage: {
-    detailButton: 'receipt-detail-button-:receiptId',
+    detailButton: 'receipt-detail-button-:receiptId'
   },
   receiptDetailPage: {
-    downloadButton: 'receipt-detail-download-button',
+    downloadButton: 'receipt-detail-download-button'
   },
   debtPositionDetailPage: {
-    payButton: 'payment-option-action-pay',
+    payButton: 'payment-option-action-pay'
   },
   searchPage: {
-    goToDetailButton: 'search-item-detail-button',
+    goToDetailButton: 'search-item-detail-button'
   },
   listItem: {
     ec: 'list-item-ec',
-    description: 'list-item-description',
-  },
+    description: 'list-item-description'
+  }
 };
 
 // HELPERS
@@ -147,7 +147,10 @@ export const simulateCheckoutPayment = async (page: Page, paymentDetails: Paymen
 /**
  * Finds a debt position by its description using pagination.
  */
-export const findDebPositionByDescriptionUsingPagination = async (page: Page, description: string) => {
+export const findDebPositionByDescriptionUsingPagination = async (
+  page: Page,
+  description: string
+) => {
   let found = false;
   let currentPage = 1;
   while (!found) {

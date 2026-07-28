@@ -16,7 +16,6 @@ const TEST_URL = ARPU_BROKER_URL;
 authTest(
   'ARPU-001 - Come cittadino voglio pagare un avviso di pagamento',
   async ({ authenticatedPage }) => {
-
     const debtPositionInfo = {
       ec: 'EC DEMO',
       description: '[TEST E2E - DO NOT DELETE] Tipo dovuto di test',
@@ -40,9 +39,14 @@ authTest(
         `Notice with the specified description "${debtPositionInfo.description}" not found.`
       );
     }
-  
+
     await authenticatedPage
-      .getByTestId(SELECTORS.debtPositionListPage.detailButton.replace(':debtPositionId', debtPositionInfo.debtPositionId!))
+      .getByTestId(
+        SELECTORS.debtPositionListPage.detailButton.replace(
+          ':debtPositionId',
+          debtPositionInfo.debtPositionId!
+        )
+      )
       .click();
 
     await authenticatedPage.getByTestId(SELECTORS.debtPositionDetailPage.payButton).click();
@@ -63,9 +67,14 @@ authTest(
     const content = authenticatedPage.getByRole('main');
     const firstReceipt = content.getByRole('listitem').first();
     const orgName = await firstReceipt.getByTestId(SELECTORS.listItem.ec).textContent();
-    const description = await firstReceipt.getByTestId(SELECTORS.listItem.description).textContent();
+    const description = await firstReceipt
+      .getByTestId(SELECTORS.listItem.description)
+      .textContent();
 
-    const receiptDetailButtonRegex = new RegExp(`${SELECTORS.receiptListPage.detailButton.replace(':receiptId', '([0-9])*')}`, 'i');
+    const receiptDetailButtonRegex = new RegExp(
+      `${SELECTORS.receiptListPage.detailButton.replace(':receiptId', '([0-9])*')}`,
+      'i'
+    );
 
     await firstReceipt.getByTestId(receiptDetailButtonRegex).click();
 
