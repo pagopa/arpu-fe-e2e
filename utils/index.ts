@@ -129,10 +129,14 @@ export function parseCurrencyToNumber(currencyString: string): number {
 export const simulateCheckoutPayment = async (page: Page, paymentDetails: PaymentDetails) => {
   await page.getByLabel('Apri riepilogo pagamento').click();
 
-  const amount = page.getByText('Importo', { exact: true }).locator('//following-sibling::*[1]');
+  const amount = page
+    .getByText('Importo', { exact: true })
+    .locator('xpath=following-sibling::*[1]');
   await expect(amount).toHaveText(paymentDetails.amount);
 
-  const ec = page.getByText('Ente Creditore', { exact: true }).locator('//following-sibling::*[1]');
+  const ec = page
+    .getByText('Ente Creditore', { exact: true })
+    .locator('xpath=following-sibling::*[1]');
   await expect(ec).toHaveText(paymentDetails.ec);
 
   //Simulate successful completion
@@ -153,9 +157,9 @@ export const findDebPositionByDescriptionUsingPagination = async (
 ) => {
   let found = false;
   let currentPage = 1;
-  while (!found) {
-    await page.waitForTimeout(1000); // Wait for the page to load
+  while (!found && currentPage <= 20) {
     const notices = page.locator('[role="listitem"]');
+    await expect(notices.first()).toBeVisible();
     const count = await notices.count();
     console.log(
       `Checking ${count} debt positions on page ${currentPage} for description: "${description}"`

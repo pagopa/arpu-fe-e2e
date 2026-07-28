@@ -72,7 +72,7 @@ authTest(
       .textContent();
 
     const receiptDetailButtonRegex = new RegExp(
-      `${SELECTORS.receiptListPage.detailButton.replace(':receiptId', '([0-9])*')}`,
+      `${SELECTORS.receiptListPage.detailButton.replace(':receiptId', '\\d+')}$`,
       'i'
     );
 
