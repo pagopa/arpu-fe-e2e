@@ -53,6 +53,15 @@ jobs:
 
       - name: Generate an index page with links to all reports
         if: always()
+        continue-on-error: true
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git worktree add -f existing-reports gh-pages || true
+  
+          if [ -d "existing-reports/reports" ]; then
+            cp -r existing-reports/reports/* public/reports/ || true
+          fi
+
         run: |
           cd public/reports
           REPORT_LIST=""
