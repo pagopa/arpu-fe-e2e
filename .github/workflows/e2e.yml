@@ -55,15 +55,15 @@ jobs:
         if: always()
         run: |
           cd public/reports
-          cd REPORT_LIST="""
+          REPORT_LIST=""
           for d in $(ls -1d */ 2>/dev/null | sed 's///' | grep -E '^[0-9]+$' | sort -nr); do
-            REPORT_LIST="$REPORT_LIST<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
           done
           cd ../..
 
           cat << EOF > public/index.html
           <!DOCTYPE html>
-          <html lang="in">
+          <html lang="it">
           <head>
             <meta charset="UTF-8">
             <title>Storico Test E2E ARPU</title>
@@ -71,7 +71,7 @@ jobs:
           <body>
             <h1>Storico Test E2E ARPU</h1>
             <ul>
-              $REPORT_LIST
+              ${REPORT_LIST}
             </ul>
           </body>
           </html>
