@@ -52,7 +52,7 @@ jobs:
             unzip -q "$trace_file" -d temp_trace
             echo "Sanitizing trace file: $trace_file"
             sed -i 's/Bearer eyJ[A-Za-z0-9_.-]*/Bearer [REDACTED]/g' temp_trace/*.network || true
-            cd temp_trace && zip -r "../$trace_file" .
+            (cd temp_trace && zip -q -r "../$trace_file" .)
             rm -rf temp_trace
           done
 
