@@ -3,9 +3,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 dotenv.config({ path: path.resolve(__dirname, '.env') });
-
-console.log(`Running tests on: ${process.env.BASE_URL}`);
-
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
@@ -29,8 +26,7 @@ export default defineConfig({
     locale: 'it-IT',
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.BASE_URL,
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on'
+    trace: 'off'
   },
 
   /* Configure projects for major browsers */

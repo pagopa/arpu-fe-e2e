@@ -44,17 +44,17 @@ jobs:
       - name: run e2e tests
         run: yarn test
 
-      - name: Sanitize Playwright report
-        if: always()
-        run: |
-          find playwright-report -name '*.zip' | while read trace_file; do
-            mkdir -p temp_trace
-            unzip -q "$trace_file" -d temp_trace
-            echo "Sanitizing trace file: $trace_file"
-            sed -i 's/Bearer eyJ[A-Za-z0-9_.-]*/Bearer [REDACTED]/g' temp_trace/*.network || true
-            (cd temp_trace && zip -q -r "../$trace_file" .)
-            rm -rf temp_trace
-          done
+      # - name: Sanitize Playwright report
+      #   if: always()
+      #   run: |
+      #     find playwright-report -name '*.zip' | while read trace_file; do
+      #       mkdir -p temp_trace
+      #       unzip -q "$trace_file" -d temp_trace
+      #       echo "Sanitizing trace file: $trace_file"
+      #       sed -i 's/Bearer eyJ[A-Za-z0-9_.-]*/Bearer [REDACTED]/g' temp_trace/*.network || true
+      #       (cd temp_trace && zip -q -r "../$trace_file" .)
+      #       rm -rf temp_trace
+      #     done
 
       - name: Generate Playwright report
         if: always()
