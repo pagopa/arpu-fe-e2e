@@ -44,27 +44,25 @@ jobs:
       - name: run e2e tests
         run: yarn test
 
-      # - name: Sanitize Playwright report
-      #   if: always()
-      #   run: |
-      #     find playwright-report -name '*.zip' | while read trace_file; do
-      #       mkdir -p temp_trace
-      #       unzip -q "$trace_file" -d temp_trace
-      #       echo "Sanitizing trace file: $trace_file"
-      #       sed -i 's/Bearer eyJ[A-Za-z0-9_.-]*/Bearer [REDACTED]/g' temp_trace/*.network || true
-      #       (cd temp_trace && zip -q -r "../$trace_file" .)
-      #       rm -rf temp_trace
-      #     done
+      - name: Check if Playwright report exists
+        id: check_report
+        if: always()
+        run: |
+          if [ -d "playwright-report" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Generate Playwright report
-        if: always()
+        if: always() && steps.check_report.outputs.exists == 'true'
         run: | 
           mkdir -p public/reports/${{ github.run_id }}/
           cp -r playwright-report/* public/reports/${{ github.run_id }}/
           echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
 
       - name: Generate an index page with links to all reports
-        if: always()
+        if: always() && steps.check_report.outputs.exists == 'true'
         continue-on-error: true
         run: |
           git fetch origin gh-pages:gh-pages || true
@@ -98,7 +96,7 @@ jobs:
           EOF
 
       - name: Upload Playwright report to GitHub Pages
-        if: always()
+        if: always() && steps.check_report.outputs.exists == 'true'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
         with:
           publish_dir: ./public
