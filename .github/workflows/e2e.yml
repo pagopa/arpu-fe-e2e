@@ -54,12 +54,18 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
 
+      - name: redact sensitive information from Playwright report
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: ./redact-passwords.sh playwright-report
+
+
       - name: Generate Playwright report
         if: always() && steps.check_report.outputs.exists == 'true'
         run: | 
           mkdir -p public/reports/${{ github.run_id }}/
           cp -r playwright-report/* public/reports/${{ github.run_id }}/
           echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
+
 
       - name: Generate an index page with links to all reports
         if: always() && steps.check_report.outputs.exists == 'true'
