@@ -43,3 +43,68 @@ jobs:
 
       - name: run e2e tests
         run: yarn test
+
+      - name: Check if Playwright report exists
+        id: check_report
+        if: always()
+        run: |
+          if [ -d "playwright-report" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: redact sensitive information from Playwright report
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: ./redact-passwords.sh playwright-report
+
+
+      - name: Generate Playwright report
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: | 
+          mkdir -p public/reports/${{ github.run_id }}/
+          cp -r playwright-report/* public/reports/${{ github.run_id }}/
+          echo "Playwright report generated at: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/"
+
+
+      - name: Generate an index page with links to all reports
+        if: always() && steps.check_report.outputs.exists == 'true'
+        continue-on-error: true
+        run: |
+          git fetch origin gh-pages:gh-pages || true
+          git worktree add -f existing-reports gh-pages || true
+  
+          if [ -d "existing-reports/reports" ]; then
+            cp -r existing-reports/reports/* public/reports/ || true
+          fi
+
+          cd public/reports
+          REPORT_LIST=""
+          for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+          done
+          cd ../..
+
+          cat << EOF > public/index.html
+          <!DOCTYPE html>
+          <html lang="it">
+          <head>
+            <meta charset="UTF-8">
+            <title>Storico Test E2E ARPU</title>
+          </head>
+          <body>
+            <h1>Storico Test E2E ARPU</h1>
+            <ul>
+              ${REPORT_LIST}
+            </ul>
+          </body>
+          </html>
+          EOF
+
+      - name: Upload Playwright report to GitHub Pages
+        if: always() && steps.check_report.outputs.exists == 'true'
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
+        with:
+          publish_dir: ./public
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          keep_files: true
