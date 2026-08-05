@@ -93,11 +93,11 @@ jobs:
           cd public/reports
           REPORT_LIST=""
           for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
-            report_date=$(git -C ../../existing-reports log --format='%ad' --date=format:'%Y-%m-%d %H:%M:%S' -- "reports/${d}" 2>/dev/null | tail -n 1)
+            report_date=$(git -C ../../existing-reports log --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}" 2>/dev/null | tail -n 1)
             if [ -z "$report_date" ]; then
               report_date=$(stat -c '%y' "$d" | cut -d'.' -f1)
             fi
-            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a> - Created on ${report_date}</li>"
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a> del ${report_date}</li>"
           done
           cd ../..
 
@@ -123,4 +123,4 @@ jobs:
         with:
           publish_dir: ./public
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          keep_files: true
+          keep_files: false
