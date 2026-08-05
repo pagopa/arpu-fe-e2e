@@ -100,7 +100,7 @@ jobs:
               report_epoch=$(stat -c '%Y' "$d")
               report_date=$(date -d "@${report_epoch}" '+%d/%m/%Y %H:%M:%S')
             fi
-            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a> del ${report_date}</li>"
+            REPORT_LIST="${REPORT_LIST}<li>Report <a href='./reports/${d}/'>#${d}</a> del ${report_date}</li>"
           done
           cd ../..
 
@@ -109,7 +109,7 @@ jobs:
           <html lang="it">
           <head>
             <meta charset="UTF-8">
-            <title>Storico Test E2E ARPU</title>
+            <title>Storico reports test E2E ARPU</title>
           </head>
           <body>
             <h1>Storico Test E2E ARPU</h1>
