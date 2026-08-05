@@ -97,7 +97,8 @@ jobs:
           for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
             report_date=$(git -C ../../existing-reports log --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}" 2>/dev/null | tail -n 1)
             if [ -z "$report_date" ]; then
-              report_date=$(stat -c '%y' "$d" | cut -d'.' -f1)
+              report_epoch=$(stat -c '%Y' "$d")
+              report_date=$(date -d "@${report_epoch}" '+%d/%m/%Y %H:%M:%S')
             fi
             REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a> del ${report_date}</li>"
           done
