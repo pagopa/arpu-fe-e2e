@@ -78,10 +78,26 @@ jobs:
             cp -r existing-reports/reports/* public/reports/ || true
           fi
 
+          # Keep only the 5 newest numeric report folders.
+          if [ -d "public/reports" ]; then
+            cd public/reports
+            ls -1d */ 2>/dev/null \
+              | sed 's:/$::' \
+              | grep -E '^[0-9]+$' \
+              | sort -nr \
+              | tail -n +6 \
+              | xargs -r rm -rf
+            cd ../..
+          fi
+
           cd public/reports
           REPORT_LIST=""
           for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
-            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+            report_date=$(git -C ../../existing-reports log --format='%ad' --date=format:'%Y-%m-%d %H:%M:%S' -- "reports/${d}" 2>/dev/null | tail -n 1)
+            if [ -z "$report_date" ]; then
+              report_date=$(stat -c '%y' "$d" | cut -d'.' -f1)
+            fi
+            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a> - Created on ${report_date}</li>"
           done
           cd ../..
 
