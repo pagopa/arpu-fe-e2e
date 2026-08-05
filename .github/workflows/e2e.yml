@@ -10,6 +10,7 @@ on:
 
 env:
   NODE_VERSION: '22.21.0'
+  MAX_AVAILABLE_REPORTS: '20'
 
 jobs:
   testing-e2e:
@@ -78,14 +79,15 @@ jobs:
             cp -r existing-reports/reports/* public/reports/ || true
           fi
 
-          # Keep only the 5 newest numeric report folders.
+          # Keep only the newest numeric report folders based on MAX_AVAILABLE_REPORTS.
           if [ -d "public/reports" ]; then
             cd public/reports
+            cutoff=$((MAX_AVAILABLE_REPORTS + 1))
             ls -1d */ 2>/dev/null \
               | sed 's:/$::' \
               | grep -E '^[0-9]+$' \
               | sort -nr \
-              | tail -n +6 \
+              | tail -n +"${cutoff}" \
               | xargs -r rm -rf
             cd ../..
           fi
