@@ -95,7 +95,7 @@ jobs:
           REPORT_LIST=""
           for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
             report_date=""
-            if [ -d "../../existing-reports/.git" ]; then
+            if [ -e "../../existing-reports/.git" ]; then
               report_date=$(git -C ../../existing-reports log -1 --diff-filter=A --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}/index.html" 2>/dev/null || true)
               if [ -z "$report_date" ]; then
                 report_date=$(git -C ../../existing-reports log -1 --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}" 2>/dev/null || true)
