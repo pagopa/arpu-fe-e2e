@@ -70,7 +70,6 @@ jobs:
 
       - name: Generate an index page with links to all reports
         if: always() && steps.check_report.outputs.exists == 'true'
-        continue-on-error: true
         run: |
           git fetch origin gh-pages:gh-pages || true
           git worktree add -f existing-reports gh-pages || true
@@ -123,6 +122,14 @@ jobs:
           </body>
           </html>
           EOF
+
+      - name: Verify generated index page
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: |
+          if [ ! -s "public/index.html" ]; then
+            echo "public/index.html is missing or empty"
+            exit 1
+          fi
 
       - name: Upload Playwright report to GitHub Pages
         if: always() && steps.check_report.outputs.exists == 'true'
