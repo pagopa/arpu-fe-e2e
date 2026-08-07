@@ -10,6 +10,7 @@ on:
 
 env:
   NODE_VERSION: '22.21.0'
+  MAX_AVAILABLE_REPORTS: '20'
 
 jobs:
   testing-e2e:
@@ -69,7 +70,6 @@ jobs:
 
       - name: Generate an index page with links to all reports
         if: always() && steps.check_report.outputs.exists == 'true'
-        continue-on-error: true
         run: |
           git fetch origin gh-pages:gh-pages || true
           git worktree add -f existing-reports gh-pages || true
@@ -78,10 +78,34 @@ jobs:
             cp -r existing-reports/reports/* public/reports/ || true
           fi
 
+          # Keep only the newest numeric report folders based on MAX_AVAILABLE_REPORTS.
+          if [ -d "public/reports" ]; then
+            cd public/reports
+            cutoff=$((MAX_AVAILABLE_REPORTS + 1))
+            ls -1d */ 2>/dev/null \
+              | sed 's:/$::' \
+              | grep -E '^[0-9]+$' \
+              | sort -nr \
+              | tail -n +"${cutoff}" \
+              | xargs -r rm -rf
+            cd ../..
+          fi
+
           cd public/reports
           REPORT_LIST=""
           for d in $(ls -1d */ 2>/dev/null | sed 's:/$::' | grep -E '^[0-9]+$' | sort -nr); do
-            REPORT_LIST="${REPORT_LIST}<li><a href='./reports/${d}/'>Report Run #${d}</a></li>"
+            report_date=""
+            if [ -e "../../existing-reports/.git" ]; then
+              report_date=$(git -C ../../existing-reports log -1 --diff-filter=A --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}/index.html" 2>/dev/null || true)
+              if [ -z "$report_date" ]; then
+                report_date=$(git -C ../../existing-reports log -1 --format='%ad' --date=format:'%d/%m/%Y %H:%M:%S' -- "reports/${d}" 2>/dev/null || true)
+              fi
+            fi
+            if [ -z "$report_date" ]; then
+              report_epoch=$(stat -c '%Y' "$d")
+              report_date=$(date -d "@${report_epoch}" '+%d/%m/%Y %H:%M:%S')
+            fi
+            REPORT_LIST="${REPORT_LIST}<li>Report <a href='./reports/${d}/'>#${d}</a> del ${report_date}</li>"
           done
           cd ../..
 
@@ -90,7 +114,7 @@ jobs:
           <html lang="it">
           <head>
             <meta charset="UTF-8">
-            <title>Storico Test E2E ARPU</title>
+            <title>Storico reports test E2E ARPU</title>
           </head>
           <body>
             <h1>Storico Test E2E ARPU</h1>
@@ -101,10 +125,18 @@ jobs:
           </html>
           EOF
 
+      - name: Verify generated index page
+        if: always() && steps.check_report.outputs.exists == 'true'
+        run: |
+          if [ ! -s "public/index.html" ]; then
+            echo "public/index.html is missing or empty"
+            exit 1
+          fi
+
       - name: Upload Playwright report to GitHub Pages
         if: always() && steps.check_report.outputs.exists == 'true'
         uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1
         with:
           publish_dir: ./public
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          keep_files: true
+          keep_files: false
