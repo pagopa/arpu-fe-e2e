@@ -143,7 +143,7 @@ jobs:
           keep_files: true
 
       - name: Alert Slack on e2e test failure
-        if: always() && steps.run_e2e_tests.outcome == 'failure'
+        if: always()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/
