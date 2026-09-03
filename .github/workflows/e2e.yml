@@ -43,6 +43,7 @@ jobs:
           cat .env
 
       - name: run e2e tests
+        id: run_e2e_tests
         run: yarn test
 
       - name: Check if Playwright report exists
@@ -139,4 +140,22 @@ jobs:
         with:
           publish_dir: ./public
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          keep_files: false
+          keep_files: true
+
+      - name: Alert Slack on e2e test failure
+        if: always() && steps.run_e2e_tests.outcome == 'failure'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          REPORT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/reports/${{ github.run_id }}/
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$SLACK_WEBHOOK_URL" ]; then
+            echo "SLACK_WEBHOOK_URL secret is not configured; skipping Slack alert."
+            exit 0
+          fi
+
+          payload=$(jq -n \
+            --arg text "*[arpu-fe-e2e]*\nE2E tests failed for ${{ github.repository }} on ${{ github.ref_name }}. Run: ${RUN_URL} Report: ${REPORT_URL}" \
+            '{text: $text}')
+
+          curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
