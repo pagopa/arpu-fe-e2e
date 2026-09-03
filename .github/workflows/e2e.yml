@@ -155,7 +155,7 @@ jobs:
           fi
 
           payload=$(jq -n \
-            --arg text "E2E tests failed for ${{ github.repository }} on ${{ github.ref_name }}. Run: ${RUN_URL} Report: ${REPORT_URL}" \
+            --arg text "*[arpu-fe-e2e]*\nE2E tests failed for ${{ github.repository }} on ${{ github.ref_name }}. Run: ${RUN_URL} Report: ${REPORT_URL}" \
             '{text: $text}')
 
           curl -X POST -H 'Content-type: application/json' --data "$payload" "$SLACK_WEBHOOK_URL"
